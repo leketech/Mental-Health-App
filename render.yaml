@@ -1,0 +1,39 @@
+# render.yaml
+services:
+  - type: web
+    name: mental-health-webapp
+    env: go
+    region: oregon
+    plan: free
+    rootDir: mental-health-webapp
+    buildCommand: go build -o main .
+    startCommand: ./main
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        value: supersecretkey
+      - key: OPENAI_API_KEY
+        fromSecret: OPENAI_API_KEY
+      - key: DB_CONNECTION_STRING
+        fromService:
+          name: mental-health-postgres
+          property: connectionString
+
+  - type: static
+    name: frontend
+    region: oregon
+    plan: free
+    buildCommand: cd frontend && npm ci && npm run build
+    publishPath: frontend/build
+    redirectRules:
+      - source: /*
+        destination: /
+        type: rewrite
+
+  - type: postgres
+    name: mental-health-postgres
+    region: oregon
+    plan: free
+    databaseName: mental_db
+    user: mental_user
