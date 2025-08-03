@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/auth';
 
 export default function MoodTracker() {
   const [moods, setMoods] = useState([]);
   const [mood, setMood] = useState('');
   const [note, setNote] = useState('');
-  const token = localStorage.getItem('token');
 
   const fetchMoods = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/api/moods', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('/api/moods');
       setMoods(res.data);
     } catch (err) {
       console.error('Failed to fetch moods');
@@ -20,7 +17,18 @@ export default function MoodTracker() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('POST /moods not yet implemented in Go backend');
+    if (!mood) return;
+
+    try {
+      await api.post('/api/moods', { mood, note });
+      setMood('');
+      setNote('');
+      fetchMoods(); // Refresh the list
+      alert('Mood recorded successfully!');
+    } catch (err) {
+      console.error('Failed to record mood:', err);
+      alert('Failed to record mood. Please try again.');
+    }
   };
 
   useEffect(() => {
@@ -37,6 +45,10 @@ export default function MoodTracker() {
           <option value="sad">Sad 😢</option>
           <option value="anxious">Anxious 😟</option>
           <option value="calm">Calm 🧘‍♀️</option>
+          <option value="angry">Angry 😠</option>
+          <option value="excited">Excited 🎉</option>
+          <option value="tired">Tired 😴</option>
+          <option value="neutral">Neutral 😐</option>
         </select>
         <input
           type="text"

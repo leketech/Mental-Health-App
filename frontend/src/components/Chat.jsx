@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../utils/auth';
 
 export default function Chat() {
   const [message, setMessage] = useState('');
   const [reply, setReply] = useState('');
   const [loading, setLoading] = useState(false);
-  const token = localStorage.getItem('token');
 
   const send = async () => {
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:8080/api/chat', { message }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.post('/api/chat', { message });
       setReply(res.data.reply);
     } catch (err) {
       setReply("Sorry, AI service failed.");

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../utils/auth';
 
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState('john@example.com');
@@ -9,9 +9,12 @@ export default function Login({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:8080/api/login', { email, password });
-      localStorage.setItem('token', res.data.token);
-      onLogin(res.data.user);
+      const res = await api.post('/api/login', { email, password });
+      localStorage.setItem('token', res.data.access_token);
+      if (res.data.refresh_token) {
+        localStorage.setItem('refreshToken', res.data.refresh_token);
+      }
+      onLogin(res.data.user || { name: 'User' });
     } catch (err) {
       setError('Invalid credentials');
     }
