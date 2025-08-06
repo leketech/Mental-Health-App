@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import api from '../utils/auth'; // assuming this is your configured axios instance
-import { useNavigate } from 'react-router-dom'; // if using routing
+import api from '../utils/auth';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 export default function Register({ onRegister }) {
   const [formData, setFormData] = useState({
@@ -12,7 +12,7 @@ export default function Register({ onRegister }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate(); // for redirect after register
+  const navigate = useNavigate(); // Initialize navigate
 
   const handleChange = (e) => {
     setFormData({
@@ -38,32 +38,23 @@ export default function Register({ onRegister }) {
 
     setLoading(true);
     try {
-      // ✅ Define userData before making request
       const userData = {
         name: formData.name,
         email: formData.email,
         password: formData.password
       };
 
-      // ✅ Use the imported `api` (configured with baseURL, etc.)
       const res = await api.post('/api/register', userData);
+      console.log('Registration successful:', res.data.message);
 
-      // ✅ Use the response — log, alert, or redirect
-      console.log('Registration successful:', res.data.message || 'Account created');
+      // ✅ Use navigate to go to login after success
+      navigate('/login');
 
-      // ✅ Option 1: Show success and switch to login
+      // ✅ Optional: call onRegister if it's used for UI switching
       if (onRegister) {
         onRegister();
       }
-
-      // ✅ Option 2: Redirect to login (recommended if using React Router)
-      // navigate('/login');
-
-      // ✅ Optional: Show a toast or success message instead of alert
-      alert('Registration successful! Please log in.');
-      
     } catch (err) {
-      // Handle error response
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
