@@ -3,7 +3,7 @@ package services
 import (
 	"database/sql"
 	"log"
-	"mental-health-webapp/utils"
+	"mentalhealthwebapp/utils"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"

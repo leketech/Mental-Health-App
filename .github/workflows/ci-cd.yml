@@ -22,19 +22,19 @@ jobs:
 
       - name: Validate Go mod
         run: |
-          cd mental-health-webapp
+          cd mentalhealthwebapp
           go mod tidy
           go mod verify
 
       - name: Run Go tests (if any)
         run: |
-          cd mental-health-webapp
+          cd mentalhealthwebapp
           go test -v ./... || echo "No tests found, continuing..."
 
       - name: Security scan (Go) - Check for common vulnerabilities
         run: |
           go install github.com/securego/gosec/v2/cmd/gosec@latest
-          gosec ./mental-health-webapp/...
+          gosec ./mentalhealthwebapp/...
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -72,4 +72,4 @@ jobs:
                -X POST https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys \
                -d '{}'
         env:
-          RENDER_API_KEY: ${{ secrets.rnd_XtvWuwd4chAwjYiYUwXQbGY2PcxL }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}

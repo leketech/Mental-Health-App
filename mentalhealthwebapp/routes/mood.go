@@ -3,7 +3,7 @@ package routes
 import (
 	"database/sql"
 	"log"
-	"mental-health-webapp/models"
+	"mentalhealthwebapp/models"
 	"time"
 
 	"github.com/gofiber/fiber/v2"

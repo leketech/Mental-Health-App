@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"mental-health-webapp/services"
-	"mental-health-webapp/utils"
+	"mentalhealthwebapp/services"
+	"mentalhealthwebapp/utils"
 	"strings"
 	"time"
 

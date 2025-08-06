@@ -3,7 +3,7 @@ package middleware
 
 import (
 	"database/sql"
-	"mental-health-webapp/services"
+	"mentalhealthwebapp/services"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
