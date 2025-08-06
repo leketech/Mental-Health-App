@@ -3,7 +3,7 @@ services:
     build:
       context: ../frontend
       args:
-        REACT_APP_API_URL: http://localhost:8080
+        REACT_APP_API_URL: http://localhost:3001
     ports:
       - "3000:3000"
     depends_on:
@@ -12,13 +12,13 @@ services:
   web:
     build: .
     ports:
-      - "8080:8080"
+      - "3001:3001"
     environment:
       DB_HOST: db
       DB_PORT: 5432
       DB_CONNECTION_STRING: postgres://mental_user:mental_pass@db:5432/mental_db?sslmode=disable
       JWT_SECRET: your-super-secret-jwt-key-change-in-production
-      PORT: 8080
+      PORT: 3001
     depends_on:
       db:
         condition: service_healthy

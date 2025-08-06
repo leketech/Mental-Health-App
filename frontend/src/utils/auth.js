@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with interceptors for automatic token refresh
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080'
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001'
 });
 
 // Request interceptor to add token to headers
