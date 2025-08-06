@@ -1,4 +1,3 @@
-# .github/workflows/ci-cd.yml
 name: CI/CD Pipeline
 
 on:
@@ -21,20 +20,21 @@ jobs:
           go-version: '1.21'
 
       - name: Validate Go mod
+        working-directory: mentalhealthwebapp
         run: |
-          cd mentalhealthwebapp
           go mod tidy
           go mod verify
 
       - name: Run Go tests (if any)
+        working-directory: mentalhealthwebapp
         run: |
-          cd mentalhealthwebapp
-          go test -v ./... || echo "No tests found, continuing..."
+          go test -v ./... || echo "No tests found or failed, continuing..."
 
-      - name: Security scan (Go) - Check for common vulnerabilities
+      - name: Security scan (Go) 
+        working-directory: mentalhealthwebapp
         run: |
           go install github.com/securego/gosec/v2/cmd/gosec@latest
-          gosec ./mentalhealthwebapp/...
+          gosec ./...
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -51,7 +51,7 @@ jobs:
       - name: Lint React code
         working-directory: frontend
         run: |
-          npx eslint src/**/*.jsx src/**/*.js --quiet || echo "Linting issues found"
+          npx eslint src/**/*.jsx src/**/*.js --quiet || echo "Linting issues found, continuing..."
 
       - name: Check for npm vulnerabilities
         working-directory: frontend
@@ -69,7 +69,8 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
                -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
-               -X POST https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys \
+               -X POST \
+               https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys \
                -d '{}'
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
