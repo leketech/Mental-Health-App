@@ -5,13 +5,13 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"github.com/leketech/mental-health-app/services"
-	"github.com/leketech/mental-health-app/utils"
 	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/leketech/mental-health-app/services"
+	"github.com/leketech/mental-health-app/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -30,7 +30,6 @@ func Login(db *sql.DB) fiber.Handler {
 			})
 		}
 
-		// Get user from database
 		var user struct {
 			ID           int    `json:"id"`
 			Name         string `json:"name"`
@@ -52,7 +51,6 @@ func Login(db *sql.DB) fiber.Handler {
 			})
 		}
 
-		// Verify password
 		err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password))
 		if err != nil {
 			return c.Status(401).JSON(fiber.Map{
@@ -60,7 +58,6 @@ func Login(db *sql.DB) fiber.Handler {
 			})
 		}
 
-		// Generate token pair (access + refresh tokens)
 		tokenPair, err := utils.GenerateTokenPair(user.ID)
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{
@@ -68,16 +65,14 @@ func Login(db *sql.DB) fiber.Handler {
 			})
 		}
 
-		// Initialize refresh token service and store refresh token
 		refreshService := services.NewRefreshTokenService(db)
-		expiresAt := time.Now().Add(7 * 24 * time.Hour) // 7 days
+		expiresAt := time.Now().Add(7 * 24 * time.Hour)
 		if err := refreshService.StoreRefreshToken(user.ID, tokenPair.RefreshToken, expiresAt); err != nil {
 			return c.Status(500).JSON(fiber.Map{
 				"error": "Failed to store refresh token",
 			})
 		}
 
-		// ✅ Return success with both tokens
 		return c.JSON(fiber.Map{
 			"message":       "Login successful",
 			"access_token":  tokenPair.AccessToken,
@@ -104,7 +99,6 @@ func Register(db *sql.DB) fiber.Handler {
 			})
 		}
 
-		// Hash password
 		hashed, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{
@@ -112,7 +106,6 @@ func Register(db *sql.DB) fiber.Handler {
 			})
 		}
 
-		// Save user to database
 		query := `INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id`
 		var userID int
 		err = db.QueryRow(query, req.Name, req.Email, string(hashed)).Scan(&userID)
@@ -136,7 +129,7 @@ func Register(db *sql.DB) fiber.Handler {
 	}
 }
 
-// RefreshToken handles token refresh using refresh tokens
+// RefreshToken handles token refresh
 func RefreshToken(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		type Request struct {
@@ -150,10 +143,7 @@ func RefreshToken(db *sql.DB) fiber.Handler {
 			})
 		}
 
-		// Initialize refresh token service
 		refreshService := services.NewRefreshTokenService(db)
-
-		// Validate refresh token
 		userID, err := refreshService.ValidateRefreshToken(req.RefreshToken)
 		if err != nil {
 			return c.Status(401).JSON(fiber.Map{
@@ -161,7 +151,6 @@ func RefreshToken(db *sql.DB) fiber.Handler {
 			})
 		}
 
-		// Generate new token pair
 		tokenPair, err := utils.GenerateTokenPair(userID)
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{
@@ -169,17 +158,14 @@ func RefreshToken(db *sql.DB) fiber.Handler {
 			})
 		}
 
-		// Store new refresh token
-		expiresAt := time.Now().Add(7 * 24 * time.Hour) // 7 days
+		expiresAt := time.Now().Add(7 * 24 * time.Hour)
 		if err := refreshService.StoreRefreshToken(userID, tokenPair.RefreshToken, expiresAt); err != nil {
 			return c.Status(500).JSON(fiber.Map{
 				"error": "Failed to store refresh token",
 			})
 		}
 
-		// Optionally revoke old refresh token (token rotation)
 		if err := refreshService.RevokeRefreshToken(req.RefreshToken); err != nil {
-			// Log error but don't fail the request
 			fmt.Printf("Warning: Failed to revoke old refresh token: %v\n", err)
 		}
 
@@ -197,7 +183,7 @@ func Logout(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		type Request struct {
 			RefreshToken string `json:"refresh_token"`
-			LogoutAll    bool   `json:"logout_all"` // Optional: logout from all devices
+			LogoutAll    bool   `json:"logout_all"`
 		}
 
 		var req Request
@@ -207,13 +193,9 @@ func Logout(db *sql.DB) fiber.Handler {
 			})
 		}
 
-		// Initialize refresh token service
 		refreshService := services.NewRefreshTokenService(db)
-
-		// Get user ID from JWT context (if available)
 		userID, hasUserID := c.Locals("userID").(int)
 
-		// If logout_all is true and we have user ID, revoke all user tokens
 		if req.LogoutAll && hasUserID {
 			if err := refreshService.RevokeAllUserTokens(userID); err != nil {
 				return c.Status(500).JSON(fiber.Map{
@@ -221,32 +203,34 @@ func Logout(db *sql.DB) fiber.Handler {
 				})
 			}
 		} else if req.RefreshToken != "" {
-			// Revoke specific refresh token
 			if err := refreshService.RevokeRefreshToken(req.RefreshToken); err != nil {
-				// Don't fail if token doesn't exist - user might already be logged out
 				fmt.Printf("Warning: Failed to revoke refresh token: %v\n", err)
 			}
 		}
 
-		// Blacklist current access token if available
 		if hasUserID {
-			// Extract access token from Authorization header
 			authHeader := c.Get("Authorization")
 			if authHeader != "" && len(authHeader) > 7 && authHeader[:7] == "Bearer " {
 				accessToken := authHeader[7:]
 
-				// Parse token to get expiry
-				token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
+				token, parseErr := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
 					return utils.GetJWTSecret(), nil
 				})
 
-				if err == nil {
+				var expiresAt time.Time
+				if parseErr == nil && token.Claims != nil {
 					if claims, ok := token.Claims.(jwt.MapClaims); ok {
-						if exp, ok := claims["exp"].(float64); ok {
-							expiresAt := time.Unix(int64(exp), 0)
-							refreshService.BlacklistAccessToken(accessToken, expiresAt)
+						if exp, exists := claims["exp"].(float64); exists {
+							expiresAt = time.Unix(int64(exp), 0)
 						}
 					}
+				}
+				if expiresAt.IsZero() {
+					expiresAt = time.Now().Add(15 * time.Minute)
+				}
+
+				if err := refreshService.BlacklistAccessToken(accessToken, expiresAt); err != nil {
+					log.Printf("Failed to blacklist access token: %v", err)
 				}
 			}
 		}
