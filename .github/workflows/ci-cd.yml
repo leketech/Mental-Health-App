@@ -22,6 +22,7 @@ jobs:
       - name: Validate Go mod
         working-directory: mentalhealthwebapp
         run: |
+          go mod download
           go mod tidy
           go mod verify
 
@@ -30,10 +31,14 @@ jobs:
         run: |
           go test -v ./... || echo "No tests found or failed, continuing..."
 
-      - name: Security scan (Go) 
+      - name: Security scan (Go)
         working-directory: mentalhealthwebapp
         run: |
+          # Ensure dependencies are available
+          go mod download
+          # Install gosec
           go install github.com/securego/gosec/v2/cmd/gosec@latest
+          # Run security scan
           gosec ./...
 
       - name: Set up Node.js
@@ -57,7 +62,7 @@ jobs:
         working-directory: frontend
         run: |
           npm audit --audit-level=high
-        continue-on-error: false  # Fail the job if high/critical vulnerabilities found
+        continue-on-error: false  # Fail if high/critical issues
 
   deploy:
     needs: build-and-test
@@ -70,7 +75,7 @@ jobs:
           curl -H "Content-Type: application/json" \
                -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
                -X POST \
-               https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys \
+               "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
                -d '{}'
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}

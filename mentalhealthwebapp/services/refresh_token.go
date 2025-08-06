@@ -3,7 +3,7 @@ package services
 import (
 	"database/sql"
 	"log"
-	"mentalhealthwebapp/utils"
+	"github.com/leketech/mental-health-app/utils"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"

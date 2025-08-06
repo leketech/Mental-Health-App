@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"mentalhealthwebapp/services"
-	"mentalhealthwebapp/utils"
+	"github.com/leketech/mental-health-app/services"
+	"github.com/leketech/mental-health-app/utils"
 	"strings"
 	"time"
 

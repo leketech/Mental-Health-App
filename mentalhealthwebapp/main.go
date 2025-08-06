@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
-	"mentalhealthwebapp/config"
-	"mentalhealthwebapp/middleware"
-	"mentalhealthwebapp/routes"
+	"github.com/leketech/mental-health-app/config"
+	"github.com/leketech/mental-health-app/middleware"
+	"github.com/leketech/mental-health-app/routes"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"

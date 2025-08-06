@@ -1,4 +1,4 @@
-module mentalhealthwebapp
+module github.com/leketech/mental-health-app
 
 go 1.24.4
 
