@@ -4,12 +4,12 @@ import (
 	"log"
 	"os"
 
+	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
+
 	"github.com/leketech/mental-health-app/config"
 	"github.com/leketech/mental-health-app/middleware"
 	"github.com/leketech/mental-health-app/routes"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -83,6 +83,12 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	log.Printf("✅ Server running on http://0.0.0.0:%s", port)
-    log.Fatal(app.Listen("0.0.0.0:" + port))
+
+	// ✅ Log that we're starting
+	log.Printf("✅ Server starting on port :%s", port)
+
+	// ✅ Use :port instead of 0.0.0.0:port (cleaner and works better on Render)
+	if err := app.Listen(":" + port); err != nil {
+		log.Fatalf("❌ Failed to start server: %v", err)
+	}
 }
