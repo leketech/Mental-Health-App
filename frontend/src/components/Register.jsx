@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import api from '../utils/auth';
+import api from '../utils/auth'; // assuming this is your configured axios instance
+import { useNavigate } from 'react-router-dom'; // if using routing
 
 export default function Register({ onRegister }) {
   const [formData, setFormData] = useState({
@@ -10,6 +11,8 @@ export default function Register({ onRegister }) {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate(); // for redirect after register
 
   const handleChange = (e) => {
     setFormData({
@@ -35,18 +38,36 @@ export default function Register({ onRegister }) {
 
     setLoading(true);
     try {
-      const res = await api.post('/api/register', {
+      // ✅ Define userData before making request
+      const userData = {
         name: formData.name,
         email: formData.email,
         password: formData.password
-      });
+      };
+
+      // ✅ Use the imported `api` (configured with baseURL, etc.)
+      const res = await api.post('/api/register', userData);
+
+      // ✅ Use the response — log, alert, or redirect
+      console.log('Registration successful:', res.data.message || 'Account created');
+
+      // ✅ Option 1: Show success and switch to login
+      if (onRegister) {
+        onRegister();
+      }
+
+      // ✅ Option 2: Redirect to login (recommended if using React Router)
+      // navigate('/login');
+
+      // ✅ Optional: Show a toast or success message instead of alert
+      alert('Registration successful! Please log in.');
       
-      alert('Registration successful! Please login with your credentials.');
-      onRegister(); // Callback to switch to login
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      // Handle error response
+      setError(err.response?.data?.error || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
