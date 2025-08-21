@@ -81,7 +81,7 @@ func main() {
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "10000" // fallback to render default port
 	}
 
 	// ✅ Log that we're starting
