@@ -88,7 +88,7 @@ func main() {
 	log.Printf("✅ Server starting on port :%s", port)
 
 	// ✅ Use :port instead of 0.0.0.0:port (cleaner and works better on Render)
-	if err := app.Listen(":" + port); err != nil {
+	if err := app.Listen("0.0.0.0:" + port); err != nil {
 		log.Fatalf("❌ Failed to start server: %v", err)
 	}
 }
