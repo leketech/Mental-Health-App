@@ -35,7 +35,7 @@ cd "$SCRIPT_DIR/mentalhealthwebapp"
 # Function to clean up Docker resources
 cleanup() {
     print_status "Cleaning up Docker resources..."
-    docker-compose down --volumes --remove-orphans 2>/dev/null || true
+    docker compose down --volumes --remove-orphans 2>/dev/null || true
     docker system prune -f 2>/dev/null || true
 }
 
@@ -48,16 +48,16 @@ build_and_run() {
     
     # Build with no cache to ensure fresh build
     print_status "Building Docker images..."
-    docker-compose build --no-cache --parallel
+    docker compose build --no-cache --parallel
     
     # Start services
     print_status "Starting services..."
-    docker-compose up -d db
+    docker compose up -d db
     
     # Wait for database
     print_status "Waiting for database to be ready..."
     timeout=60
-    while ! docker-compose exec -T db pg_isready -U mental_user -d mental_db >/dev/null 2>&1; do
+    while ! docker compose exec -T db pg_isready -U mental_user -d mental_db >/dev/null 2>&1; do
         sleep 2
         timeout=$((timeout - 2))
         if [ $timeout -le 0 ]; then
@@ -68,7 +68,7 @@ build_and_run() {
     
     # Start backend
     print_status "Starting backend service..."
-    docker-compose up -d web
+    docker compose up -d web
     
     # Wait for backend
     print_status "Waiting for backend to be ready..."
@@ -84,41 +84,41 @@ build_and_run() {
     
     # Start frontend
     print_status "Starting frontend service..."
-    docker-compose up -d frontend
+    docker compose up -d frontend
     
     print_success "UnwindMind application is running!"
     print_status "Frontend: http://localhost:3000"
     print_status "Backend API: http://localhost:3001"
     print_status "Database: localhost:5432"
     print_status ""
-    print_status "To view logs: docker-compose logs -f"
-    print_status "To stop: docker-compose down"
+    print_status "To view logs: docker compose logs -f"
+    print_status "To stop: docker compose down"
 }
 
 # Function to show logs
 show_logs() {
     print_status "Showing application logs..."
-    docker-compose logs -f
+    docker compose logs -f
 }
 
 # Function to stop the application
 stop() {
     print_status "Stopping UnwindMind application..."
-    docker-compose down
+    docker compose down
     print_success "Application stopped"
 }
 
 # Function to restart the application
 restart() {
     print_status "Restarting UnwindMind application..."
-    docker-compose restart
+    docker compose restart
     print_success "Application restarted"
 }
 
 # Function to show status
 status() {
     print_status "UnwindMind application status:"
-    docker-compose ps
+    docker compose ps
 }
 
 # Main script logic
