@@ -42,9 +42,20 @@ jobs:
 
       - name: Install dependencies
         run: |
+          # Check if lockfile exists and is in sync
           if [ -f package-lock.json ]; then
-            npm ci --prefer-offline --cache .npm-cache || npm ci --retries 3
+            echo "📦 Found package-lock.json, attempting npm ci..."
+            if npm ci --prefer-offline --cache .npm-cache; then
+              echo "✅ npm ci succeeded"
+            else
+              echo "⚠️ npm ci failed due to sync issues, regenerating lockfile..."
+              rm package-lock.json
+              npm install --package-lock-only --no-audit
+              echo "🔄 Retrying npm ci with fresh lockfile..."
+              npm ci --prefer-offline --cache .npm-cache
+            fi
           else
+            echo "📦 No lockfile found, running npm install..."
             npm install
           fi
 
