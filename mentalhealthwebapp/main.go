@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"runtime"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -13,6 +14,10 @@ import (
 )
 
 func main() {
+	// Log startup information
+	log.Printf("✅ Starting UnwindMind API Server...")
+	log.Printf("✅ Go version: %s", runtime.Version())
+	
 	// Load .env
 	if err := godotenv.Load(); err != nil {
 		log.Printf("⚠️ .env file not found, using system env")
@@ -59,12 +64,15 @@ func main() {
 			return c.Status(503).JSON(fiber.Map{
 				"status": "unhealthy",
 				"error":  "database connection failed",
+				"details": err.Error(),
 			})
 		}
 		return c.JSON(fiber.Map{
 			"status": "healthy",
 			"service": "UnwindMind API",
 			"version": "1.0.0",
+			"port": os.Getenv("PORT"),
+			"timestamp": c.Locals("time"),
 		})
 	})
 
@@ -104,14 +112,23 @@ func main() {
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "10000" // fallback to render default port
+		port = "10000" // Render's default port
 	}
 
-	// ✅ Log that we're starting
-	log.Printf("✅ Server starting on port :%s", port)
+	// ✅ Log startup information
+	log.Printf("✅ Server starting on port %s", port)
+	log.Printf("✅ Environment: PORT=%s", os.Getenv("PORT"))
+	log.Printf("✅ Go version: %s", runtime.Version())
+	log.Printf("✅ CORS_ORIGIN: %s", os.Getenv("CORS_ORIGIN"))
 
-	// ✅ Use :port instead of 0.0.0.0:port (cleaner and works better on Render)
-	if err := app.Listen("0.0.0.0:" + port); err != nil {
-		log.Fatalf("❌ Failed to start server: %v", err)
+	// ✅ Bind to 0.0.0.0 for Render compatibility (not localhost)
+	addr := "0.0.0.0:" + port
+	log.Printf("✅ Binding to address: %s", addr)
+	log.Printf("✅ Health check available at: %s/health", addr)
+
+	// Start the server
+	log.Printf("🚀 UnwindMind API Server starting...")
+	if err := app.Listen(addr); err != nil {
+		log.Fatalf("❌ Failed to start server on %s: %v", addr, err)
 	}
 }

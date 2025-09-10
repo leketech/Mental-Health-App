@@ -7,7 +7,7 @@ services:
     region: oregon
     plan: starter
     rootDir: mentalhealthwebapp
-    buildCommand: go build -o main .
+    buildCommand: go mod tidy && go build -o main .
     startCommand: ./main
     envVars:
       - key: PORT
@@ -29,7 +29,7 @@ services:
     name: unwindmind-frontend
     region: oregon
     plan: starter
-    buildCommand: cd frontend && npm ci && npm run build:ci
+    buildCommand: cd frontend && npm ci --prefer-offline && npm run build:ci
     publishPath: frontend/build
     domains:
       - unwindmind.life
