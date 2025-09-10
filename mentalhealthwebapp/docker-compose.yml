@@ -1,16 +1,29 @@
+version: '3.8'
+
 services:
   frontend:
     build:
       context: ../frontend
+      dockerfile: Dockerfile
       args:
         REACT_APP_API_URL: http://localhost:3001
     ports:
       - "3000:3000"
     depends_on:
       - web
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   web:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "3001:3001"
     environment:
@@ -19,27 +32,42 @@ services:
       DB_CONNECTION_STRING: postgres://mental_user:mental_pass@db:5432/mental_db?sslmode=disable
       JWT_SECRET: your-super-secret-jwt-key-change-in-production
       PORT: 3001
+      CORS_ORIGIN: http://localhost:3000
     depends_on:
       db:
         condition: service_healthy
-    restart: on-failure
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   db:
-    image: postgres:15
+    image: postgres:15-alpine
     ports:
       - "5432:5432"
     environment:
       POSTGRES_DB: mental_db
       POSTGRES_USER: mental_user
       POSTGRES_PASSWORD: mental_pass
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U mental_user -d mental_db"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    shm_size: 256mb
 
 volumes:
   pgdata:
+    driver: local
+
+networks:
+  default:
+    driver: bridge

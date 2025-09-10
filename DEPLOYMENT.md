@@ -102,6 +102,25 @@ unwindmind.life → Frontend (React)
 3. **CORS errors**: Verify domain configuration
 4. **Theme not persisting**: Check localStorage in browser
 
+### Docker Issues:
+5. **Frontend build fails with EOF error**: 
+   - Use the improved Dockerfile with npm retry configuration
+   - Run: `./docker-dev.sh clean && ./docker-dev.sh start`
+6. **npm ci fails**: Network/timeout issues during Docker build
+   - The updated Dockerfile includes retry mechanisms and better caching
+   - Use `docker-compose build --no-cache` if needed
+7. **Large build context**: Added .dockerignore files to reduce build time
+
+### Docker Development:
+```bash
+# Use the development script for easier Docker management
+./docker-dev.sh start    # Build and start all services
+./docker-dev.sh logs     # View logs
+./docker-dev.sh status   # Check service status
+./docker-dev.sh stop     # Stop all services
+./docker-dev.sh clean    # Clean up resources
+```
+
 ### Logs:
 - View service logs in Render dashboard
 - Backend logs show migration status
