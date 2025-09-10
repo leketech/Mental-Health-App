@@ -1,11 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="group/bw-theme">
   <head>
     <meta charset="utf-8" />
-    <title>Mental Health App</title>
+    <title>UnwindMind - Mental Health App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+    <!-- Google Fonts -->
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Inter%3Awght%40400%3B500%3B700%3B900&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Custom CSS Variables -->
+    <style type="text/tailwindcss">
+      :root {
+        --primary-color: #4f46e5;
+        --secondary-color: #f3f4f6;
+        --text-primary: #111827;
+        --text-secondary: #6b7280;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --border-color: #e2e8f0;
+      }
+      .group.bw-theme\/bw-theme {
+        --primary-color: #ffffff;
+        --secondary-color: #374151;
+        --text-primary: #ffffff;
+        --text-secondary: #9ca3af;
+        --bg-primary: #000000;
+        --bg-secondary: #111827;
+        --border-color: #374151;
+      }
+    </style>
   </head>
-  <body>
+  <body class="bg-slate-50 group-[:not(.bw-theme)]/bw-theme:bg-slate-50 group-bw-theme/bw-theme:bg-gray-100">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>
