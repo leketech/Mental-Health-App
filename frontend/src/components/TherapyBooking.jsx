@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const TherapyBooking = () => {
-  const { toggleTheme, classes } = useTheme();
+  const { toggleTheme } = useTheme();
   const [selectedDate, setSelectedDate] = useState(5);
   const [currentMonth, setCurrentMonth] = useState('July');
-  const [currentYear, setCurrentYear] = useState(2024);
   const [activeTab, setActiveTab] = useState('upcoming');
 
   const therapists = [
@@ -54,7 +54,7 @@ const TherapyBooking = () => {
   };
 
   const handleBooking = (therapistId) => {
-    alert(`Booking session with ${therapists.find(t => t.id === therapistId)?.name} on ${currentMonth} ${selectedDate}, ${currentYear}`);
+    alert(`Booking session with ${therapists.find(t => t.id === therapistId)?.name} on ${currentMonth} ${selectedDate}, 2024`);
   };
 
   return (

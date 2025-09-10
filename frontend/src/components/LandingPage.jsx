@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 
 const LandingPage = ({ user, onLogout }) => {
-  const { toggleTheme, classes } = useTheme();
+  const { toggleTheme } = useTheme();
 
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group-[:not(.bw-theme)]/bw-theme:bg-white group-bw-theme/bw-theme:bg-white overflow-x-hidden" style={{fontFamily: 'Inter, "Noto Sans", sans-serif'}}>

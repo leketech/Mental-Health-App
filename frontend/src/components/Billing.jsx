@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const Billing = () => {
-  const { classes } = useTheme();
   const [activeTab, setActiveTab] = useState('subscription');
   const [selectedPlan, setSelectedPlan] = useState('pro');
   const [billingCycle, setBillingCycle] = useState('monthly');
