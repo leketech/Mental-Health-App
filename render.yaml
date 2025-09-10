@@ -1,39 +1,68 @@
-# render.yaml
+# render.yaml - UnwindMind Mental Health App Deployment
 services:
+  # Backend API Service
   - type: web
-    name: mental-health-webapp
+    name: unwindmind-api
     env: go
     region: oregon
-    plan: free
-    rootDir: mental-health-webapp
+    plan: starter
+    rootDir: mentalhealthwebapp
     buildCommand: go build -o main .
     startCommand: ./main
     envVars:
       - key: PORT
         value: 10000
       - key: JWT_SECRET
-        value: supersecretkey
+        generateValue: true
       - key: OPENAI_API_KEY
-        fromSecret: OPENAI_API_KEY
+        sync: false
       - key: DB_CONNECTION_STRING
         fromService:
-          name: mental-health-postgres
+          name: unwindmind-postgres
           property: connectionString
+      - key: CORS_ORIGIN
+        value: https://unwindmind.life
+    healthCheckPath: /health
 
+  # Frontend Static Site
   - type: static
-    name: frontend
+    name: unwindmind-frontend
     region: oregon
-    plan: free
-    buildCommand: cd frontend && npm ci && npm run build
+    plan: starter
+    buildCommand: cd frontend && npm ci && npm run build:ci
     publishPath: frontend/build
-    redirectRules:
-      - source: /*
-        destination: /
-        type: rewrite
+    domains:
+      - unwindmind.life
+      - www.unwindmind.life
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          name: unwindmind-api
+          property: host
+      - key: REACT_APP_ENVIRONMENT
+        value: production
 
+  # PostgreSQL Database
   - type: postgres
-    name: mental-health-postgres
+    name: unwindmind-postgres
     region: oregon
-    plan: free
-    databaseName: mental_db
-    user: mental_user
+    plan: starter
+    databaseName: unwindmind_db
+    user: unwindmind_user

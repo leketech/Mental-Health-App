@@ -2,3 +2,28 @@ frontend/.env
 .env
 frontend/.env
 .env
+# Node.js / npm
+node_modules/
+frontend/node_modules/
+
+# Build outputs
+build/
+dist/
+out/
+frontend/build/
+
+# Environment files (actual ones)
+.env
+.env.local
+.env.development.local
+.env.production.local
+*.env
+!*.example  # This allows .env.example files to be included
+
+# Logs
+logs
+*.log
+
+# Optional: OS-specific files
+.DS_Store
+Thumbs.db

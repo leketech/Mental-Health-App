@@ -29,9 +29,16 @@ func main() {
 
 	// CORS middleware
 	app.Use(func(c *fiber.Ctx) error {
-		c.Set("Access-Control-Allow-Origin", "*")
+		// Get CORS origin from environment, fallback to allow all in development
+		corsOrigin := os.Getenv("CORS_ORIGIN")
+		if corsOrigin == "" {
+			corsOrigin = "*" // Allow all origins in development
+		}
+		
+		c.Set("Access-Control-Allow-Origin", corsOrigin)
 		c.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		c.Set("Access-Control-Allow-Credentials", "true")
 
 		if c.Method() == "OPTIONS" {
 			return c.SendStatus(200)
@@ -43,6 +50,22 @@ func main() {
 	// Public routes
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Mental Health API 🚀")
+	})
+
+	// Health check endpoint for Render
+	app.Get("/health", func(c *fiber.Ctx) error {
+		// Check database connection
+		if err := config.DB.Ping(); err != nil {
+			return c.Status(503).JSON(fiber.Map{
+				"status": "unhealthy",
+				"error":  "database connection failed",
+			})
+		}
+		return c.JSON(fiber.Map{
+			"status": "healthy",
+			"service": "UnwindMind API",
+			"version": "1.0.0",
+		})
 	})
 
 	// Public routes (no authentication required)

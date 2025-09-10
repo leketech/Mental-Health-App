@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
 
 const Billing = () => {
   const [activeTab, setActiveTab] = useState('subscription');
