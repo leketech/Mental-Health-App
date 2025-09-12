@@ -36,7 +36,7 @@ api.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        const response = await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/refresh`, {
+        const response = await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/refresh`, {
           refresh_token: refreshToken
         });
 

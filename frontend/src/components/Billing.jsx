@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Billing = () => {
+  const { classes } = useTheme();
   const [activeTab, setActiveTab] = useState('subscription');
   const [selectedPlan, setSelectedPlan] = useState('pro');
   const [billingCycle, setBillingCycle] = useState('monthly');
@@ -113,33 +115,37 @@ const Billing = () => {
   };
 
   return (
-    <div className="relative flex size-full min-h-screen flex-col bg-white group-[:not(.bw-theme)]/bw-theme:bg-white group-bw-theme/bw-theme:bg-white overflow-x-hidden" style={{fontFamily: 'Inter, "Noto Sans", sans-serif'}}>
-      <div className="max-w-7xl mx-auto px-10 py-10">
-        {/* Header */}
-        <div className="mb-10">
-          <h1 className="text-slate-900 group-[:not(.bw-theme)]/bw-theme:text-slate-900 group-bw-theme/bw-theme:text-[var(--text-primary)] text-4xl font-bold leading-tight tracking-tighter mb-4">Billing & Subscription</h1>
-          <p className="text-slate-600 group-[:not(.bw-theme)]/bw-theme:text-slate-600 group-bw-theme/bw-theme:text-[var(--text-secondary)] text-lg font-normal leading-normal">Manage your subscription, payment methods, and billing history</p>
+    <div className={`max-w-7xl mx-auto px-10 py-10 ${classes.transition}`}>
+      {/* Header */}
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white text-2xl mb-4">
+          💳
         </div>
+        <h1 className={`${classes.textPrimary} text-4xl font-bold mb-4`}>Billing & Subscription</h1>
+        <p className={`${classes.textSecondary} text-lg max-w-2xl mx-auto`}>
+          Manage your subscription, payment methods, and billing history
+        </p>
+      </div>
 
         {/* Tabs */}
         <div className="mb-10">
-          <div className="border-b border-solid group-[:not(.bw-theme)]/bw-theme:border-b-slate-200 group-bw-theme/bw-theme:border-b-gray-300">
+          <div className={`border-b ${classes.borderPrimary}`}>
             <nav className="flex space-x-8">
               {[
-                { id: 'subscription', name: 'Subscription', icon: 'subscriptions' },
-                { id: 'payment', name: 'Payment Methods', icon: 'credit_card' },
-                { id: 'history', name: 'Billing History', icon: 'receipt' }
+                { id: 'subscription', name: 'Subscription', icon: '💳' },
+                { id: 'payment', name: 'Payment Methods', icon: '💳' },
+                { id: 'history', name: 'Billing History', icon: '📄' }
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`py-4 px-1 border-b-2 font-medium text-base flex items-center gap-3 transition-colors ${
                     activeTab === tab.id
-                      ? 'border-blue-600 group-[:not(.bw-theme)]/bw-theme:border-blue-600 group-bw-theme/bw-theme:border-[var(--primary-color)] text-blue-600 group-[:not(.bw-theme)]/bw-theme:text-blue-600 group-bw-theme/bw-theme:text-[var(--primary-color)]'
-                      : 'border-transparent text-slate-600 group-[:not(.bw-theme)]/bw-theme:text-slate-600 group-bw-theme/bw-theme:text-[var(--text-secondary)] hover:text-slate-900 group-[:not(.bw-theme)]/bw-theme:hover:text-slate-900 group-bw-theme/bw-theme:hover:text-[var(--text-primary)] hover:border-slate-300'
+                      ? `border-blue-600 ${classes.accentPrimary}`
+                      : `border-transparent ${classes.textSecondary} hover:${classes.textPrimary} hover:border-gray-300`
                   }`}
                 >
-                  <span className="material-symbols-outlined text-xl">{tab.icon}</span>
+                  <span className="text-xl">{tab.icon}</span>
                   {tab.name}
                 </button>
               ))}
@@ -150,9 +156,14 @@ const Billing = () => {
         {/* Subscription Tab */}
         {activeTab === 'subscription' && (
           <div className="space-y-8">
-            {/* Current Plan */}
-            <div className="bg-white group-[:not(.bw-theme)]/bw-theme:bg-white group-bw-theme/bw-theme:bg-white rounded-lg shadow-sm border border-solid group-[:not(.bw-theme)]/bw-theme:border-slate-200 group-bw-theme/bw-theme:border-gray-300 p-8">
-              <h2 className="text-slate-900 group-[:not(.bw-theme)]/bw-theme:text-slate-900 group-bw-theme/bw-theme:text-[var(--text-primary)] text-2xl font-bold leading-tight tracking-tight mb-6">Current Plan</h2>
+          {/* Current Plan */}
+          <div className={`${classes.card} p-8 mb-8`}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className={`${classes.textPrimary} text-2xl font-bold`}>Current Plan</h2>
+              <button className={`px-4 py-2 rounded-lg font-medium ${classes.textSecondary} ${classes.hover} ${classes.transition}`}>
+                Edit Plan
+              </button>
+            </div>
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-slate-900 group-[:not(.bw-theme)]/bw-theme:text-slate-900 group-bw-theme/bw-theme:text-[var(--text-primary)] text-xl font-bold leading-tight">{getCurrentPlan().name} Plan</h3>
@@ -366,7 +377,6 @@ const Billing = () => {
             </div>
           </div>
         )}
-      </div>
     </div>
   );
 };

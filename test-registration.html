@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        input, button { margin: 10px 0; padding: 10px; width: 100%; box-sizing: border-box; }
+        button { background: #4f46e5; color: white; border: none; cursor: pointer; }
+        .error { color: red; margin: 10px 0; }
+        .success { color: green; margin: 10px 0; }
+        .debug { background: #f5f5f5; padding: 10px; margin: 10px 0; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mental Health App - Registration Test</h1>
+        
+        <div class="debug">
+            <strong>Debug Info:</strong><br>
+            <div id="api-url"></div>
+            <div id="status"></div>
+        </div>
+
+        <form id="registrationForm">
+            <input type="text" id="name" placeholder="Full Name" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password (min 6 chars)" required>
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+            <button type="submit">Register</button>
+        </form>
+
+        <div id="result"></div>
+        
+        <div class="debug">
+            <strong>Test Backend Connection:</strong><br>
+            <button onclick="testBackend()">Test Backend Health</button>
+            <div id="backend-test"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3001';
+        
+        document.getElementById('api-url').textContent = `API URL: ${API_URL}`;
+        document.getElementById('status').textContent = `Test started at: ${new Date().toISOString()}`;
+
+        async function testBackend() {
+            const resultDiv = document.getElementById('backend-test');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                resultDiv.innerHTML = `<span style="color: green;">✅ Backend OK: ${JSON.stringify(data)}</span>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<span style="color: red;">❌ Backend Error: ${error.message}</span>`;
+            }
+        }
+
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Registering...';
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Validation
+            if (password !== confirmPassword) {
+                resultDiv.innerHTML = '<div class="error">Passwords do not match</div>';
+                return;
+            }
+            
+            if (password.length < 6) {
+                resultDiv.innerHTML = '<div class="error">Password must be at least 6 characters</div>';
+                return;
+            }
+            
+            try {
+                console.log('Sending registration request to:', `${API_URL}/api/register`);
+                console.log('Data:', { name, email, password });
+                
+                const response = await fetch(`${API_URL}/api/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div class="success">✅ Registration successful!<br>User ID: ${data.user_id}<br>Email: ${data.email}</div>`;
+                    document.getElementById('registrationForm').reset();
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Registration failed: ${data.error || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Network error: ${error.message}</div>`;
+            }
+        });
+
+        // Test backend on page load
+        testBackend();
+    </script>
+</body>
+</html>

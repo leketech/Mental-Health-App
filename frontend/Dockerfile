@@ -13,7 +13,7 @@ RUN npm config set fetch-retry-mintimeout 10000
 RUN npm config set fetch-retry-maxtimeout 60000
 
 # Install dependencies with retries and verbose logging
-RUN npm ci --verbose --no-audit --prefer-offline || npm ci --verbose --no-audit
+RUN npm install --verbose --no-audit --legacy-peer-deps || npm install --verbose --no-audit --legacy-peer-deps
 
 # Install serve globally
 RUN npm install -g serve
