@@ -27,3 +27,6 @@ logs
 # Optional: OS-specific files
 .DS_Store
 Thumbs.db
+
+# CLI binary
+cli/mental-health-cli

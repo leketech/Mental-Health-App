@@ -41,6 +41,24 @@ graph TB
     C --> I[Health Checks]
 ```
 
+## 📁 Project Structure
+
+```
+Mental-Health-App/
+├── cli/                    # CLI application (separate from web deployment)
+│   ├── main.go            # CLI entry point
+│   ├── internal/          # CLI internal packages
+│   └── README.md          # CLI documentation
+├── frontend/              # React frontend application
+│   ├── src/
+│   └── public/
+├── mentalhealthwebapp/    # Go backend web service
+│   ├── main.go           # Web server entry point
+│   ├── routes/
+│   └── config/
+└── terraform/            # Infrastructure as code
+```
+
 ## 🛠️ Tech Stack
 
 ### Frontend
@@ -92,6 +110,10 @@ go run main.go
 cd ../frontend
 npm install
 npm start
+
+# CLI Application (Optional)
+cd ../cli
+go run main.go
 ```
 
 ## 🌐 Deployment
