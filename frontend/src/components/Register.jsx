@@ -63,7 +63,7 @@ export default function Register({ onRegister }) {
         password: formData.password
       };
 
-      const res = await api.post('/api/register', userData);
+      await api.post('/api/register', userData);
       navigate('/login');
 
       if (onRegister) {
