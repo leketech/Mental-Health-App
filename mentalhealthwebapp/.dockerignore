@@ -50,6 +50,11 @@ Dockerfile
 .git
 .gitignore
 
+# Test files
+*_test.go
+test*.go
+testing/
+
 # Documentation
 *.md
 !README.md
