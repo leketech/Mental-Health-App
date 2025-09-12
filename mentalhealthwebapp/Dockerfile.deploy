@@ -1,4 +1,4 @@
-# Optimized Dockerfile for faster builds
+# Dockerfile for deployment platforms (Railway, Render, etc.)
 FROM golang:1.22-alpine AS builder
 
 # Install build dependencies
@@ -10,20 +10,20 @@ WORKDIR /app
 # Copy go mod files first for better caching
 COPY go.mod go.sum ./
 
-# Download dependencies with caching
+# Download dependencies
 RUN go mod download && go mod verify
 
 # Copy source code
 COPY . .
 
-# Build with optimizations
+# Build the application with optimizations
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
     -ldflags='-w -s -extldflags "-static"' \
     -a -installsuffix cgo \
     -o main .
 
-# Final stage - minimal runtime
-FROM scratch
+# Final stage - use distroless for security and minimal size
+FROM gcr.io/distroless/static-debian11
 
 # Copy SSL certificates for HTTPS
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
@@ -33,6 +33,9 @@ COPY --from=builder /app/main /main
 
 # Expose port
 EXPOSE 3001
+
+# Set user (distroless uses non-root by default)
+USER nonroot:nonroot
 
 # Run the application
 ENTRYPOINT ["/main"]
