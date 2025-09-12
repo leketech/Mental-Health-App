@@ -2,8 +2,6 @@ module github.com/leketech/mental-health-app
 
 go 1.23.0
 
-toolchain go1.24.6
-
 require (
 	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/gofiber/jwt/v3 v3.3.10
