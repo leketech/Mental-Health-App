@@ -1,5 +1,8 @@
 FROM golang:1.22-alpine AS builder
 
+# Set Go toolchain to use the container's Go version
+ENV GOTOOLCHAIN=local
+
 # Install build dependencies
 RUN apk add --no-cache git ca-certificates tzdata
 
