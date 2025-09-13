@@ -23,6 +23,27 @@ func main() {
 		log.Printf("⚠️ .env file not found, using system env")
 	}
 
+	// Debug environment variables (without exposing sensitive data)
+	log.Printf("📊 Environment check:")
+	log.Printf("  - DATABASE_URL: %s", func() string {
+		if url := os.Getenv("DATABASE_URL"); url != "" {
+			return "[SET]"
+		}
+		return "[NOT SET]"
+	}())
+	log.Printf("  - DB_CONNECTION_STRING: %s", func() string {
+		if url := os.Getenv("DB_CONNECTION_STRING"); url != "" {
+			return "[SET]"
+		}
+		return "[NOT SET]"
+	}())
+	log.Printf("  - JWT_SECRET: %s", func() string {
+		if secret := os.Getenv("JWT_SECRET"); secret != "" {
+			return "[SET]"
+		}
+		return "[NOT SET]"
+	}())
+
 	// Connect to DB
 	if err := config.ConnectDB(); err != nil {
 		log.Fatal("❌ Failed to connect to database: ", err)

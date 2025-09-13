@@ -17,16 +17,28 @@ func ConnectDB() error {
         connStr = os.Getenv("DB_CONNECTION_STRING")
     }
     
+    // Log debugging information (without exposing full connection string)
     if connStr == "" {
+        log.Printf("❌ No database connection string found. Please set DATABASE_URL or DB_CONNECTION_STRING")
+        log.Printf("💡 Make sure you have added a PostgreSQL service to your Railway project")
         return sql.ErrConnDone
+    }
+    
+    // Log connection attempt (mask sensitive parts)
+    if len(connStr) > 20 {
+        log.Printf("🔗 Attempting database connection to: %s...%s", connStr[:10], connStr[len(connStr)-10:])
+    } else {
+        log.Printf("🔗 Attempting database connection (connection string too short, might be invalid)")
     }
 
     db, err := sql.Open("postgres", connStr)
     if err != nil {
+        log.Printf("❌ Failed to open database connection: %v", err)
         return err
     }
 
     if err = db.Ping(); err != nil {
+        log.Printf("❌ Failed to ping database: %v", err)
         return err
     }
 
