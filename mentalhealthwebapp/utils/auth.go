@@ -11,13 +11,16 @@ type User struct {
 }
 
 // MockValidateUser checks if email and password are valid (mock for now)
+// DEPRECATED: This function contains hardcoded credentials and should not be used in production
+// Use database-based authentication in routes/auth.go instead
 func MockValidateUser(email, password string) (*User, error) {
-    if email == "john@example.com" && password == "password123" {
-        return &User{
-            ID:    1,
-            Name:  "John Doe",
-            Email: "john@example.com",
-        }, nil
-    }
-    return nil, errors.New("invalid credentials")
+	// SECURITY WARNING: This contains hardcoded credentials - DO NOT USE IN PRODUCTION
+	if email == "demo@example.com" && password == "demo123456" {
+		return &User{
+			ID:    1,
+			Name:  "Demo User",
+			Email: "demo@example.com",
+		}, nil
+	}
+	return nil, errors.New("invalid credentials")
 }

@@ -22,7 +22,16 @@ type TokenPair struct {
 func getJWTSecret() []byte {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		secret = "supersecretkey" // Fallback for development
+		// SECURITY: In production, this should never happen
+		// Log warning and use a fallback that will fail in production
+		if os.Getenv("NODE_ENV") == "production" || os.Getenv("ENV") == "production" {
+			panic("FATAL: JWT_SECRET environment variable is required in production")
+		}
+		secret = "DEVELOPMENT-ONLY-SECRET-CHANGE-IN-PRODUCTION-" + "32-CHAR-MINIMUM-SECRET-KEY" // Fallback for development only
+	}
+	// Ensure minimum length for security
+	if len(secret) < 32 {
+		panic("FATAL: JWT_SECRET must be at least 32 characters long for security")
 	}
 	return []byte(secret)
 }

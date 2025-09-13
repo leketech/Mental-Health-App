@@ -1,0 +1,66 @@
+# Production-optimized Dockerfile for UnwindMind API
+# Multi-stage build for minimal final image size and maximum security
+
+# Build stage
+FROM golang:1.22-alpine AS builder
+
+# Set Go environment for production builds
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
+ENV GOTOOLCHAIN=local
+
+# Install build dependencies
+RUN apk add --no-cache git ca-certificates tzdata
+
+# Set working directory
+WORKDIR /app
+
+# Copy go mod files and download dependencies
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
+
+# Copy source code
+COPY . .
+
+# Build the application with optimizations
+# -ldflags="-w -s" removes debug info and symbol table for smaller binary
+# -a forces rebuilding of packages
+# -installsuffix cgo ensures static linking
+RUN go build -ldflags="-w -s" \
+    -a -installsuffix cgo -o main .
+
+# Production stage - minimal runtime image
+FROM alpine:latest
+
+# Add security and operational dependencies
+RUN apk --no-cache add ca-certificates wget tzdata && \
+    addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup
+
+# Set working directory
+WORKDIR /app
+
+# Copy the binary from builder stage
+COPY --from=builder /app/main ./main
+
+# Make binary executable and change ownership to non-root user for security
+RUN chmod +x ./main && \
+    chown -R appuser:appgroup /app
+
+# Switch to non-root user for security
+USER appuser
+
+# Expose port (using the same port the app actually runs on)
+EXPOSE 10000
+
+# Set environment variable for port
+ENV PORT=10000
+
+# Add comprehensive health check
+# Note: Health check runs as the non-root user, so we need to check the actual port
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:10000/health || exit 1
+
+# Run the application
+CMD ["./main"]

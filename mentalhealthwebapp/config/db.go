@@ -2,8 +2,10 @@ package config
 
 import (
     "database/sql"
+    "fmt"
     "log"
     "os"
+    "strings"
 
     _ "github.com/lib/pq"
 )
@@ -17,6 +19,41 @@ func ConnectDB() error {
         connStr = os.Getenv("DB_CONNECTION_STRING")
     }
     
+    // If we still don't have a connection string, try to construct one from Railway variables
+    if connStr == "" {
+        // Try to construct from individual Railway variables
+        host := os.Getenv("RAILWAY_POSTGRES_HOST")
+        if host == "" {
+            host = os.Getenv("PGHOST")
+        }
+        port := os.Getenv("RAILWAY_POSTGRES_PORT")
+        if port == "" {
+            port = os.Getenv("PGPORT")
+        }
+        if port == "" {
+            port = "5432"
+        }
+        user := os.Getenv("RAILWAY_POSTGRES_USER")
+        if user == "" {
+            user = os.Getenv("PGUSER")
+        }
+        password := os.Getenv("RAILWAY_POSTGRES_PASSWORD")
+        if password == "" {
+            password = os.Getenv("PGPASSWORD")
+        }
+        database := os.Getenv("RAILWAY_POSTGRES_DATABASE")
+        if database == "" {
+            database = os.Getenv("PGDATABASE")
+        }
+        
+        // If we have the individual components, construct the connection string
+        if host != "" && user != "" && password != "" && database != "" {
+            connStr = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=require", 
+                host, port, user, password, database)
+            log.Printf("🔧 Constructed connection string from individual Railway variables")
+        }
+    }
+    
     // Log debugging information (without exposing full connection string)
     if connStr == "" {
         log.Printf("❌ No database connection string found. Please set DATABASE_URL or DB_CONNECTION_STRING")
@@ -25,17 +62,19 @@ func ConnectDB() error {
     }
     
     // Log connection attempt (mask sensitive parts)
-    if len(connStr) > 20 {
-        log.Printf("🔗 Attempting database connection to: %s...%s", connStr[:10], connStr[len(connStr)-10:])
-    } else {
-        log.Printf("🔗 Attempting database connection (connection string too short, might be invalid)")
-    }
+    maskedConnStr := maskConnectionString(connStr)
+    log.Printf("🔗 Attempting database connection to: %s", maskedConnStr)
 
     db, err := sql.Open("postgres", connStr)
     if err != nil {
         log.Printf("❌ Failed to open database connection: %v", err)
         return err
     }
+
+    // Set connection pool settings for production
+    db.SetMaxOpenConns(25)
+    db.SetMaxIdleConns(5)
+    db.SetConnMaxLifetime(0) // Use default
 
     if err = db.Ping(); err != nil {
         log.Printf("❌ Failed to ping database: %v", err)
@@ -52,6 +91,27 @@ func ConnectDB() error {
     }
     
     return nil
+}
+
+// maskConnectionString hides sensitive information in connection string for logging
+func maskConnectionString(connStr string) string {
+    // Mask password
+    if strings.Contains(connStr, "password=") {
+        parts := strings.Split(connStr, "password=")
+        if len(parts) > 1 {
+            passwordPart := parts[1]
+            // Find the end of the password (next space or end of string)
+            endIdx := strings.Index(passwordPart, " ")
+            if endIdx == -1 {
+                endIdx = len(passwordPart)
+            }
+            if endIdx > 0 {
+                maskedPassword := strings.Repeat("*", len(passwordPart[:endIdx]))
+                return parts[0] + "password=" + maskedPassword + passwordPart[endIdx:]
+            }
+        }
+    }
+    return connStr
 }
 
 // runMigrations ensures all required tables exist
