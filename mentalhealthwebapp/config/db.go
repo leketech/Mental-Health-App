@@ -11,7 +11,12 @@ import (
 var DB *sql.DB
 
 func ConnectDB() error {
-    connStr := os.Getenv("DB_CONNECTION_STRING")
+    // Try Railway's DATABASE_URL first, then fallback to DB_CONNECTION_STRING
+    connStr := os.Getenv("DATABASE_URL")
+    if connStr == "" {
+        connStr = os.Getenv("DB_CONNECTION_STRING")
+    }
+    
     if connStr == "" {
         return sql.ErrConnDone
     }
