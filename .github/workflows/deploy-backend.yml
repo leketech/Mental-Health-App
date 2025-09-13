@@ -20,13 +20,44 @@ jobs:
 
       - name: Install Railway CLI
         run: |
-          npm install -g @railway/cli
+          # Pin to a stable version that works better with GitHub Actions
+          npm install -g @railway/cli@3.14.0
 
-      - name: Deploy to Railway
-        run: |
-          railway up --service ${{ vars.RAILWAY_SERVICE_NAME || 'unwindmind-api' }}
+      - name: Deploy to Railway with retry logic
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            cd mentalhealthwebapp
+            railway up --service ${{ vars.RAILWAY_SERVICE_NAME || 'unwindmind-api' }} --detach
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Fallback - Trigger deployment via Railway API
+        if: failure()
+        run: |
+          echo "CLI deployment failed, trying API approach..."
+          # Get project and service info
+          PROJECT_ID=$(railway status --json 2>/dev/null | jq -r '.project.id' || echo "")
+          SERVICE_ID=$(railway status --json 2>/dev/null | jq -r '.service.id' || echo "")
+          
+          if [ -n "$PROJECT_ID" ] && [ -n "$SERVICE_ID" ]; then
+            echo "Triggering deployment via Railway API..."
+            curl -X POST \
+              -H "Authorization: Bearer $RAILWAY_TOKEN" \
+              -H "Content-Type: application/json" \
+              "https://backboard.railway.com/graphql/v2" \
+              -d '{
+                "query": "mutation { serviceInstanceRedeploy(serviceId: \"'$SERVICE_ID'\") { id } }"
+              }' || echo "API deployment trigger failed"
+          else
+            echo "Could not determine project/service IDs for API fallback"
+          fi
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        working-directory: ./mentalhealthwebapp
 
       - name: Health Check
         run: |
