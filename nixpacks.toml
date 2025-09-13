@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = ['go_1_22']
+
+[phases.build]
+cmds = [
+    'cd mentalhealthwebapp',
+    'go mod tidy', 
+    'go build -o main .'
+]
+
+[start]
+cmd = 'cd mentalhealthwebapp && ./main'

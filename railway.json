@@ -1,0 +1,15 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "cd mentalhealthwebapp && go mod tidy && go build -o main .",
+    "watchPatterns": [
+      "mentalhealthwebapp/**"
+    ]
+  },
+  "deploy": {
+    "startCommand": "cd mentalhealthwebapp && ./main",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}
