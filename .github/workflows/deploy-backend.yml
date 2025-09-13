@@ -28,11 +28,13 @@ jobs:
           go mod tidy
           go build -o main .
 
+      - name: Install Railway CLI
+        run: |
+          npm install -g @railway/cli
+
       - name: Deploy to Railway
-        uses: railwayapp/railway-deploy@v2
-        with:
-          service: unwindmind-api
-          environment: production
+        run: |
+          railway up --service unwindmind-api
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
