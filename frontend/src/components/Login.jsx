@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import api from '../utils/auth';
 import { useTheme } from '../contexts/ThemeContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login({ onLogin }) {
   const { classes } = useTheme();
-  const [email, setEmail] = useState('john@example.com');
-  const [password, setPassword] = useState('password123');
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -31,6 +33,19 @@ export default function Login({ onLogin }) {
   return (
     <div className={`min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 ${classes.bgSecondary}`}>
       <div className="max-w-md w-full space-y-8">
+        {/* Back Navigation */}
+        <div className="mb-6">
+          <button 
+            onClick={() => navigate('/')}
+            className={`inline-flex items-center gap-2 ${classes.textSecondary} hover:${classes.textPrimary} transition-colors`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Home
+          </button>
+        </div>
+
         {/* Header */}
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white text-2xl mb-4">
@@ -149,13 +164,20 @@ export default function Login({ onLogin }) {
           </form>
         </div>
 
-        {/* Demo Credentials */}
-        <div className={`${classes.card} p-4`}>
-          <h3 className={`text-sm font-medium ${classes.textSecondary} mb-2`}>Demo Credentials</h3>
-          <p className={`text-xs ${classes.textMuted}`}>
-            Email: john@example.com<br />
-            Password: password123
+        {/* Registration Prompt */}
+        <div className={`${classes.card} p-6 text-center`}>
+          <p className={`text-sm ${classes.textSecondary} mb-2`}>
+            Don't have an account?
           </p>
+          <p className={`text-sm ${classes.textMuted}`}>
+            Kindly register if you don't have an account
+          </p>
+          <button 
+            onClick={() => window.location.href = '/register'}
+            className={`mt-3 font-medium ${classes.accentPrimary} ${classes.hover} rounded px-3 py-2 ${classes.transition}`}
+          >
+            Create Account
+          </button>
         </div>
 
         {/* Footer */}

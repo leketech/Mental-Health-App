@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import api from './utils/auth';
-import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext.js';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -19,7 +18,6 @@ import CookieConsent from './components/CookieConsent';
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [showRegister, setShowRegister] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -65,11 +63,18 @@ export default function App() {
           path="/login"
           element={
             !user ? (
-              showRegister ? (
-                <Register onRegister={() => setShowRegister(false)} />
-              ) : (
-                <Login onLogin={handleLogin} />
-              )
+              <Login onLogin={handleLogin} />
+            ) : (
+              <Navigate to="/moods" />
+            )
+          }
+        />
+        
+        <Route
+          path="/register"
+          element={
+            !user ? (
+              <Register onRegister={() => window.location.href = '/login'} />
             ) : (
               <Navigate to="/moods" />
             )
@@ -100,7 +105,9 @@ export default function App() {
         } />
         <Route path="/therapy" element={
           <ProtectedRoute user={user}>
-            <TherapyBooking />
+            <AppLayout user={user} onLogout={handleLogout}>
+              <TherapyBooking />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/billing" element={

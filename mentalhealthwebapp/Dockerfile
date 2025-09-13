@@ -3,6 +3,12 @@ FROM golang:1.22-alpine AS builder
 # Set Go toolchain to use the container's Go version
 ENV GOTOOLCHAIN=local
 
+# Configure Go environment for faster builds
+ENV GOPROXY=https://proxy.golang.org,direct
+ENV GOSUMDB=sum.golang.org
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+
 # Install build dependencies
 RUN apk add --no-cache git ca-certificates tzdata
 
@@ -12,14 +18,14 @@ WORKDIR /app
 # Copy go mod files
 COPY go.mod go.sum ./
 
-# Download dependencies
-RUN go mod download
+# Download dependencies with verbose output for debugging
+RUN go mod download -x
 
 # Copy source code
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+# Build the application with optimizations
+RUN go build -ldflags="-w -s" -a -installsuffix cgo -o main .
 
 # Final stage
 FROM alpine:latest

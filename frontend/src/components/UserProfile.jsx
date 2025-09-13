@@ -8,11 +8,21 @@ export default function UserProfile() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    email: ''
+  });
+  const [saveLoading, setSaveLoading] = useState(false);
 
   const fetchProfile = async () => {
     try {
       const res = await api.get('/api/user/profile');
       setProfile(res.data);
+      setEditForm({
+        name: res.data.name || '',
+        email: res.data.email || ''
+      });
     } catch (err) {
       console.error('Failed to fetch profile:', err);
       setError('Failed to load profile');
@@ -37,6 +47,38 @@ export default function UserProfile() {
     };
     loadData();
   }, []);
+
+  const handleEditToggle = () => {
+    if (isEditing) {
+      setEditForm({
+        name: profile.name || '',
+        email: profile.email || ''
+      });
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSaveProfile = async () => {
+    setSaveLoading(true);
+    try {
+      const response = await api.put('/api/user/profile', editForm);
+      setProfile(response.data);
+      setIsEditing(false);
+      setError('');
+    } catch (err) {
+      console.error('Failed to update profile:', err);
+      setError('Failed to update profile. Please try again.');
+    }
+    setSaveLoading(false);
+  };
 
   const getMoodColor = (mood) => {
     const colors = {
@@ -115,23 +157,66 @@ export default function UserProfile() {
         <div className={`${classes.card} p-8`}>
           <div className="flex items-center justify-between mb-6">
             <h2 className={`text-2xl font-bold ${classes.textPrimary}`}>Profile Information</h2>
-            <button className={`px-4 py-2 rounded-lg font-medium ${classes.textSecondary} ${classes.hover} ${classes.transition}`}>
-              <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              Edit Profile
-            </button>
+            <div className="flex items-center gap-2">
+              {isEditing && (
+                <button 
+                  onClick={handleSaveProfile}
+                  disabled={saveLoading}
+                  className={`px-4 py-2 rounded-lg font-medium text-white bg-green-600 hover:bg-green-700 ${classes.transition} disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {saveLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Saving...
+                    </div>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </button>
+              )}
+              <button 
+                onClick={handleEditToggle}
+                className={`px-4 py-2 rounded-lg font-medium ${classes.textSecondary} ${classes.hover} ${classes.transition}`}
+              >
+                <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                {isEditing ? 'Cancel' : 'Edit Profile'}
+              </button>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className={`p-4 rounded-lg ${classes.bgSecondary} border border-[var(--border-primary)]`}>
                 <label className={`block text-sm font-medium ${classes.textMuted} mb-1`}>Full Name</label>
-                <p className={`text-lg font-medium ${classes.textPrimary}`}>{profile.name}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="name"
+                    value={editForm.name}
+                    onChange={handleInputChange}
+                    className={`w-full text-lg font-medium ${classes.textPrimary} bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500 rounded p-2`}
+                    placeholder="Enter your full name"
+                  />
+                ) : (
+                  <p className={`text-lg font-medium ${classes.textPrimary}`}>{profile.name}</p>
+                )}
               </div>
               <div className={`p-4 rounded-lg ${classes.bgSecondary} border border-[var(--border-primary)]`}>
                 <label className={`block text-sm font-medium ${classes.textMuted} mb-1`}>Email Address</label>
-                <p className={`text-lg font-medium ${classes.textPrimary}`}>{profile.email}</p>
+                {isEditing ? (
+                  <input
+                    type="email"
+                    name="email"
+                    value={editForm.email}
+                    onChange={handleInputChange}
+                    className={`w-full text-lg font-medium ${classes.textPrimary} bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500 rounded p-2`}
+                    placeholder="Enter your email address"
+                  />
+                ) : (
+                  <p className={`text-lg font-medium ${classes.textPrimary}`}>{profile.email}</p>
+                )}
               </div>
             </div>
             <div className="space-y-4">
