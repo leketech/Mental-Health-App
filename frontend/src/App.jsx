@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import api from './utils/auth';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
@@ -12,6 +13,9 @@ import UserProfile from './components/UserProfile';
 import TherapyBooking from './components/TherapyBooking';
 import Billing from './components/Billing';
 import ProtectedRoute from './components/ProtectedRoute';
+import Settings from './components/Settings';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import CookieConsent from './components/CookieConsent';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -109,14 +113,24 @@ export default function App() {
         <Route path="/profile" element={
           <ProtectedRoute user={user}>
             <AppLayout user={user} onLogout={handleLogout}>
-              <UserProfile />
+              <UserProfile user={user} />
             </AppLayout>
           </ProtectedRoute>
         } />
         
+        <Route path="/settings" element={
+          <ProtectedRoute user={user}>
+            <Settings user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        } />
+        
+        {/* Public Routes */}
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        
         {/* Redirect all other routes */}
         <Route path="*" element={<Navigate to={user ? "/moods" : "/"} />} />
       </Routes>
+      <CookieConsent />
     </Router>
   </ThemeProvider>
   );
@@ -151,19 +165,37 @@ const AppLayout = ({ children, user, onLogout }) => {
                 <Link to="/billing" className={`${classes.textSecondary} ${classes.hover} no-underline px-3 py-2 rounded-md ${classes.transition}`}>Billing</Link>
                 <Link to="/profile" className={`${classes.textSecondary} ${classes.hover} no-underline px-3 py-2 rounded-md ${classes.transition}`}>Profile</Link>
               </nav>
-              <button 
-                className={`flex items-center justify-center rounded-md p-2 ${classes.hover} ${classes.transition}`} 
-                onClick={toggleTheme}
-                title="Toggle theme"
-              >
-                <span className={`text-xl ${classes.textSecondary}`}>🌗</span>
-              </button>
-              <button
-                onClick={onLogout}
-                className={`px-4 py-2 rounded-lg font-medium ${classes.bgSecondary} border ${classes.borderPrimary} ${classes.textPrimary} ${classes.hover} ${classes.transition}`}
-              >
-                Logout
-              </button>
+              
+              <div className="flex items-center gap-3">
+                {/* Settings Icon */}
+                <Link
+                  to="/settings"
+                  className={`p-2 rounded-full ${classes.textSecondary} hover:${classes.textPrimary} ${classes.bgSecondary} hover:opacity-80 transition-all`}
+                  title="Settings"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </Link>
+                
+                {/* Theme Toggle */}
+                <button 
+                  className={`flex items-center justify-center rounded-md p-2 ${classes.hover} ${classes.transition}`} 
+                  onClick={toggleTheme}
+                  title="Toggle theme"
+                >
+                  <span className={`text-xl ${classes.textSecondary}`}>🌗</span>
+                </button>
+                
+                {/* Logout Button */}
+                <button
+                  onClick={onLogout}
+                  className={`px-4 py-2 rounded-lg font-medium ${classes.bgSecondary} border ${classes.borderPrimary} ${classes.textPrimary} ${classes.hover} ${classes.transition}`}
+                >
+                  Logout
+                </button>
+              </div>
             </div>
           )}
         </div>

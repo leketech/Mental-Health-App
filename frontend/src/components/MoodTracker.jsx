@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/auth';
 import { useTheme } from '../contexts/ThemeContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function MoodTracker() {
   const { classes } = useTheme();
+  const navigate = useNavigate();
   const [moods, setMoods] = useState([]);
   const [mood, setMood] = useState('');
   const [note, setNote] = useState('');
