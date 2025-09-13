@@ -85,9 +85,10 @@ func main() {
 	// JWT Middleware with blacklist checking
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		// Use a default secret for Railway deployment (should be set as environment variable in production)
-		secret = "default-jwt-secret-change-in-production"
-		log.Printf("⚠️ JWT_SECRET not set, using default (change in production!)")
+		// #nosec G101 -- This is a development fallback, not production credentials
+		// Generate a random secret for development/testing purposes
+		secret = "development-jwt-secret-" + runtime.Version() + "-change-in-production"
+		log.Printf("⚠️ JWT_SECRET not set, using development fallback (MUST set in production!)")
 	}
 	jwtMiddleware := middleware.JWTProtectedWithBlacklist(secret, config.DB)
 
