@@ -18,16 +18,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.21'
-
-      - name: Build application
-        run: |
-          go mod tidy
-          go build -o main .
-
       - name: Install Railway CLI
         run: |
           npm install -g @railway/cli
