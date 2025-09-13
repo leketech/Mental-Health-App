@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTheme } from '../contexts/ThemeContext.js';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/auth';
@@ -6,7 +6,7 @@ import api from '../utils/auth';
 const Settings = ({ user, onLogout }) => {
   const { classes, toggleTheme, isDarkMode } = useTheme();
   const navigate = useNavigate();
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  // const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Commented out as delete functionality is not implemented
 
   const handleExportData = async () => {
     try {

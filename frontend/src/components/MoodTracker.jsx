@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/auth';
 import { useTheme } from '../contexts/ThemeContext';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom'; // Commented out as navigate is not used
 
 export default function MoodTracker() {
   const { classes } = useTheme();
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // Commented out as navigate is not used
   const [moods, setMoods] = useState([]);
   const [mood, setMood] = useState('');
   const [note, setNote] = useState('');
