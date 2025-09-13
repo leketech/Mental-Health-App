@@ -46,9 +46,13 @@ func main() {
 
 	// Connect to DB
 	if err := config.ConnectDB(); err != nil {
-		log.Fatal("❌ Failed to connect to database: ", err)
+		log.Printf("❌ Failed to connect to database: %v", err)
+		log.Printf("⚠️ Running in NO-DATABASE mode for testing. Add PostgreSQL service to Railway for full functionality.")
+		config.DB = nil // Set to nil to indicate no database
+	} else {
+		log.Printf("✅ Database connection successful")
+		defer config.DB.Close()
 	}
-	defer config.DB.Close()
 
 	// Fiber app
 	app := fiber.New()
@@ -80,21 +84,35 @@ func main() {
 
 	// Health check endpoint for Render
 	app.Get("/health", func(c *fiber.Ctx) error {
-		// Check database connection
-		if err := config.DB.Ping(); err != nil {
-			return c.Status(503).JSON(fiber.Map{
-				"status": "unhealthy",
-				"error":  "database connection failed",
-				"details": err.Error(),
+		// Check database connection if available
+		if config.DB != nil {
+			if err := config.DB.Ping(); err != nil {
+				return c.Status(503).JSON(fiber.Map{
+					"status": "unhealthy",
+					"error":  "database connection failed",
+					"details": err.Error(),
+				})
+			}
+			return c.JSON(fiber.Map{
+				"status": "healthy",
+				"service": "UnwindMind API",
+				"version": "1.0.0",
+				"port": os.Getenv("PORT"),
+				"database": "connected",
+				"timestamp": c.Locals("time"),
+			})
+		} else {
+			// No database mode
+			return c.JSON(fiber.Map{
+				"status": "partial",
+				"service": "UnwindMind API",
+				"version": "1.0.0",
+				"port": os.Getenv("PORT"),
+				"database": "not_connected",
+				"message": "Add PostgreSQL service to Railway for full functionality",
+				"timestamp": c.Locals("time"),
 			})
 		}
-		return c.JSON(fiber.Map{
-			"status": "healthy",
-			"service": "UnwindMind API",
-			"version": "1.0.0",
-			"port": os.Getenv("PORT"),
-			"timestamp": c.Locals("time"),
-		})
 	})
 
 	// Public routes (no authentication required)
