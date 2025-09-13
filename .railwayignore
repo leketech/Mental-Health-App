@@ -16,6 +16,8 @@ nginx.conf
 test-*.html
 docker-*.sh
 
-# Node modules (if any)
+# Node modules and package files (if any)
 node_modules/
+package.json
 package-lock.json
+*.npmrc
