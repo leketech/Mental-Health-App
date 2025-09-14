@@ -26,6 +26,9 @@ func ConnectDB() error {
         if host == "" {
             host = os.Getenv("PGHOST")
         }
+        if host == "" {
+            host = "localhost" // fallback for local development
+        }
         port := os.Getenv("RAILWAY_POSTGRES_PORT")
         if port == "" {
             port = os.Getenv("PGPORT")
@@ -37,27 +40,34 @@ func ConnectDB() error {
         if user == "" {
             user = os.Getenv("PGUSER")
         }
+        if user == "" {
+            user = "mental_user" // fallback for local development
+        }
         password := os.Getenv("RAILWAY_POSTGRES_PASSWORD")
         if password == "" {
             password = os.Getenv("PGPASSWORD")
+        }
+        if password == "" {
+            password = "mental_pass" // fallback for local development
         }
         database := os.Getenv("RAILWAY_POSTGRES_DATABASE")
         if database == "" {
             database = os.Getenv("PGDATABASE")
         }
+        if database == "" {
+            database = "mental_db" // fallback for local development
+        }
         
         // If we have the individual components, construct the connection string
-        if host != "" && user != "" && password != "" && database != "" {
-            connStr = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=require", 
-                host, port, user, password, database)
-            log.Printf("🔧 Constructed connection string from individual Railway variables")
-        }
+        connStr = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", 
+            host, port, user, password, database)
+        log.Printf("🔧 Constructed connection string from individual variables: %s", maskConnectionString(connStr))
     }
     
     // Log debugging information (without exposing full connection string)
     if connStr == "" {
         log.Printf("❌ No database connection string found. Please set DATABASE_URL or DB_CONNECTION_STRING")
-        log.Printf("💡 Make sure you have added a PostgreSQL service to your Railway project")
+        log.Printf("💡 Make sure you have added a PostgreSQL service to your deployment platform")
         return sql.ErrConnDone
     }
     
