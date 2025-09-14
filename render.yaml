@@ -3,13 +3,13 @@ services:
     name: unwindmind-app
     env: docker
     rootDir: mentalhealthwebapp
-    dockerCommand: docker-compose -f docker-compose.render.yml up
+    dockerfilePath: Dockerfile.production
     plan: free
     envVars:
       - key: JWT_SECRET
         sync: false
       - key: PORT
-        value: 808080
+        value: 8080
     healthCheckPath: /health
     autoDeploy: false
 

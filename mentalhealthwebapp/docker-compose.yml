@@ -1,19 +1,4 @@
 services:
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-      args:
-        REACT_APP_API_URL: https://unwindmind-api.railway.app
-    ports:
-      - "80:80"
-    depends_on:
-      - web
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-      - REACT_APP_API_URL=https://unwindmind-api.railway.app
-
   web:
     build: 
       context: .

@@ -1,20 +1,6 @@
 version: '3.8'
 
 services:
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    depends_on:
-      - web
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-      - PORT=80
-      - REACT_APP_API_URL=http://web:8080
-
   web:
     build: 
       context: .

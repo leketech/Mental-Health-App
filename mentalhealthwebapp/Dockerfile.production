@@ -1,7 +1,24 @@
 # Production-optimized Dockerfile for UnwindMind API
 # Multi-stage build for minimal final image size and maximum security
 
-# Build stage
+# Build stage for frontend
+FROM node:18-alpine AS frontend-builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy frontend files
+COPY ../frontend/package*.json ./
+COPY ../frontend/public ./public
+COPY ../frontend/src ./src
+
+# Install frontend dependencies
+RUN npm install --no-audit --legacy-peer-deps
+
+# Build the frontend
+RUN npm run build
+
+# Build stage for backend
 FROM golang:1.22-alpine AS builder
 
 # Set Go environment for production builds
@@ -23,14 +40,14 @@ RUN go mod download && go mod verify
 # Copy source code
 COPY . .
 
-# Make build script executable
-RUN chmod +x ./build.sh
+# Copy frontend build to backend
+COPY --from=frontend-builder /app/build ./frontend/build
 
 # Build the application with optimizations
 # -ldflags="-w -s" removes debug info and symbol table for smaller binary
 # -a forces rebuilding of packages
 # -installsuffix cgo ensures static linking
-RUN ./build.sh
+RUN go build -ldflags="-w -s" -a -installsuffix cgo -o main .
 
 # Production stage - minimal runtime image
 FROM alpine:latest
@@ -45,6 +62,7 @@ WORKDIR /app
 
 # Copy the binary from builder stage
 COPY --from=builder /app/main ./main
+COPY --from=builder /app/frontend/build ./frontend/build
 
 # Make binary executable and change ownership to non-root user for security
 RUN chmod +x ./main && \

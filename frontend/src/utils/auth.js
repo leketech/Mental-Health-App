@@ -1,8 +1,9 @@
 import axios from 'axios';
 
 // Create axios instance with interceptors for automatic token refresh
+// When served from the same origin, use relative paths
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001'
+  baseURL: process.env.REACT_APP_API_URL || ''
 });
 
 // Request interceptor to add token to headers
@@ -36,7 +37,9 @@ api.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        const response = await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/refresh`, {
+        // When served from the same origin, use relative paths
+        const baseUrl = process.env.REACT_APP_API_URL || '';
+        const response = await axios.post(`${baseUrl}/api/refresh`, {
           refresh_token: refreshToken
         });
 
