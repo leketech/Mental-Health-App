@@ -16,28 +16,32 @@ A comprehensive mental health application with mood tracking, journaling, and AI
 - **Frontend**: React.js with Tailwind CSS
 - **Backend**: Go with Fiber framework
 - **Database**: PostgreSQL
-- **Deployment**: Docker containers on Render
+- **Deployment**: Docker Compose on Render
 - **Authentication**: JWT tokens with refresh token rotation
 
 ## Deployment
 
 ### Render Deployment (Recommended)
 
-1. Install the Render CLI (optional):
-   ```bash
-   curl https://render.com/install.sh | sh
-   ```
+1. **Prerequisites**:
+   - Make sure there's no [go.mod](file:///mnt/c/Users/Leke/Mental-Health-App/go.mod) file in the root directory (it confuses Render)
+   - Ensure your `render.yaml` file is in the root directory
 
-2. Deploy using the deployment script:
+2. **Deploy using Docker Compose**:
+   - Render will use `mentalhealthwebapp/docker-compose.render.yml` to deploy both frontend and backend services together
+   - This approach manages both services as a single deployment
+
+3. **Deploy using the deployment script**:
    ```bash
    ./deploy-render.sh
    ```
 
-3. Or manually deploy through the Render dashboard:
+4. **Or manually deploy through the Render dashboard**:
    - Go to https://render.com
    - Create a new Web Service
    - Connect your GitHub repository
-   - Use the render.yaml configuration file
+   - Set the root directory to `mentalhealthwebapp`
+   - Select `docker-compose.render.yml` as the Docker Compose file
 
 ### Railway Deployment (Alternative)
 
@@ -66,8 +70,7 @@ A comprehensive mental health application with mood tracking, journaling, and AI
 Make sure to set the following environment variables in your deployment platform:
 
 - `JWT_SECRET` - Secret key for JWT token signing (minimum 32 characters)
-- `DATABASE_URL` - PostgreSQL database connection URL
-- `CORS_ORIGIN` - Frontend domain (e.g., https://unwindmind-frontend.onrender.com)
+- `PORT` - Port for the application (default: 80)
 
 ## Development
 
@@ -93,7 +96,7 @@ Make sure to set the following environment variables in your deployment platform
 Build and run with Docker Compose:
 ```bash
 cd mentalhealthwebapp
-docker-compose up --build
+docker-compose -f docker-compose.render.yml up --build
 ```
 
 ## API Documentation
