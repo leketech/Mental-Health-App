@@ -13,7 +13,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=${PORT:-80}
-      - REACT_APP_API_URL=https://unwindmind-api.onrender.com
+      - REACT_APP_API_URL=http://web:8080
 
   web:
     build: 
@@ -22,12 +22,10 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
       DB_CONNECTION_STRING: postgres://mental_user:mental_pass@db:5432/mental_db?sslmode=disable
-      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
+      JWT_SECRET: ${JWT_SECRET:-this-is-a-very-long-secret-key-for-development-use-only-change-in-production}
       PORT: 8080
-      CORS_ORIGIN: https://unwindmind-frontend.onrender.com
+      CORS_ORIGIN: http://localhost
     depends_on:
       db:
         condition: service_healthy

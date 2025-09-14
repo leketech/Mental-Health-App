@@ -41,7 +41,10 @@ A comprehensive mental health application with mood tracking, journaling, and AI
    - Create a new Web Service
    - Connect your GitHub repository
    - Set the root directory to `mentalhealthwebapp`
-   - Select `docker-compose.render.yml` as the Docker Compose file
+   - Use the Docker command: `docker-compose -f docker-compose.render.yml up`
+   - Add environment variables:
+     - `JWT_SECRET` (minimum 32 characters)
+     - `PORT` (set to 80)
 
 ### Railway Deployment (Alternative)
 
