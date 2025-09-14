@@ -9,7 +9,7 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: PORT
-        value: 80
+        value: 808080
     healthCheckPath: /health
     autoDeploy: false
 

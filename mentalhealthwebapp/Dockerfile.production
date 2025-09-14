@@ -54,13 +54,12 @@ RUN chmod +x ./main && \
 USER appuser
 
 # Expose default port (Render will map this to the dynamic port)
-EXPOSE ${PORT:-8080}
+EXPOSE 8080
 
 # Add comprehensive health check
 # Note: Health check runs as the non-root user
-# We use a more flexible approach that works with Render's dynamic port assignment
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD sh -c 'wget --no-verbose --tries=1 --spider http://localhost:${PORT:-8080}/health 2>/dev/null || wget --no-verbose --tries=1 --spider http://localhost:8080/health 2>/dev/null || exit 1'
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health 2>/dev/null || exit 1
 
 # Run the application
 CMD ["./main"]
