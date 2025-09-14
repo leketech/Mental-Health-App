@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"runtime"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -59,12 +61,23 @@ func main() {
 	}())
 	log.Printf("  - JWT_SECRET: %s", func() string {
 		if secret := os.Getenv("JWT_SECRET"); secret != "" {
-			return "[SET]"
+			return "[SET] Length: " + fmt.Sprintf("%d", len(secret))
 		}
 		return "[NOT SET]"
 	}())
 	log.Printf("  - PORT: %s", os.Getenv("PORT"))
 	log.Printf("  - CORS_ORIGIN: %s", os.Getenv("CORS_ORIGIN"))
+	
+	// Print all environment variables for debugging (excluding sensitive ones)
+	log.Printf("🔍 All environment variables (excluding sensitive):")
+	for _, env := range os.Environ() {
+		if !strings.Contains(env, "SECRET") && !strings.Contains(env, "PASSWORD") && !strings.Contains(env, "KEY") {
+			parts := strings.SplitN(env, "=", 2)
+			if len(parts) == 2 {
+				log.Printf("  - %s=%s", parts[0], parts[1])
+			}
+		}
+	}
 
 	// Connect to DB
 	if err := config.ConnectDB(); err != nil {
@@ -155,6 +168,7 @@ func main() {
 
 	// JWT Middleware with blacklist checking
 	secret := os.Getenv("JWT_SECRET")
+	log.Printf("🔍 JWT_SECRET environment variable length: %d", len(secret))
 	if secret == "" {
 		// SECURITY: In production, this should never happen
 		if os.Getenv("NODE_ENV") == "production" || os.Getenv("ENV") == "production" {
@@ -167,15 +181,18 @@ func main() {
 	}
 	// Ensure minimum length for security
 	if len(secret) < 32 {
+		log.Printf("⚠️ JWT_SECRET is too short (%d characters), current value: %s", len(secret), secret)
 		// For development, we'll pad the secret if it's too short
 		if os.Getenv("NODE_ENV") != "production" && os.Getenv("ENV") != "production" {
 			for len(secret) < 32 {
 				secret += "x"
 			}
-			log.Printf("⚠️ JWT_SECRET was too short, padded to meet minimum length requirement")
+			log.Printf("⚠️ JWT_SECRET was too short, padded to meet minimum length requirement. New length: %d", len(secret))
 		} else {
 			log.Fatal("❌ FATAL: JWT_SECRET must be at least 32 characters long for security")
 		}
+	} else {
+		log.Printf("✅ JWT_SECRET meets minimum length requirement (%d characters)", len(secret))
 	}
 	jwtMiddleware := middleware.JWTProtectedWithBlacklist(secret, config.DB)
 

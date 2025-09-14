@@ -13,10 +13,19 @@ import (
 var DB *sql.DB
 
 func ConnectDB() error {
+    log.Printf("🔍 Starting database connection process...")
+    
     // Try Railway's DATABASE_URL first, then fallback to DB_CONNECTION_STRING
     connStr := os.Getenv("DATABASE_URL")
+    if connStr != "" {
+        log.Printf("✅ Found DATABASE_URL environment variable")
+    }
+    
     if connStr == "" {
         connStr = os.Getenv("DB_CONNECTION_STRING")
+        if connStr != "" {
+            log.Printf("✅ Found DB_CONNECTION_STRING environment variable")
+        }
     }
     
     // Log debugging information (without exposing full connection string)
@@ -25,6 +34,8 @@ func ConnectDB() error {
         maskedConnStr := maskConnectionString(connStr)
         log.Printf("🔗 Using database connection string: %s", maskedConnStr)
     } else {
+        log.Printf("⚠️ No DATABASE_URL or DB_CONNECTION_STRING found, trying to construct from individual variables...")
+        
         // If we still don't have a connection string, try to construct one from Railway variables
         // Try to construct from individual Railway variables
         host := os.Getenv("RAILWAY_POSTGRES_HOST")
@@ -51,13 +62,15 @@ func ConnectDB() error {
             database = os.Getenv("PGDATABASE")
         }
         
+        log.Printf("🔧 Individual variables - Host: %s, Port: %s, User: %s, Database: %s", host, port, user, database)
+        
         // If we have the individual components, construct the connection string
         if host != "" && user != "" && password != "" && database != "" {
             connStr = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", 
                 host, port, user, password, database)
             log.Printf("🔧 Constructed connection string from individual variables")
-        } else if host == "" && user == "" && password == "" && database == "" {
-            // Only use localhost fallback if no environment variables are set at all
+        } else {
+            // Use Docker Compose default
             connStr = "host=db port=5432 user=mental_user password=mental_pass dbname=mental_db sslmode=disable"
             log.Printf("🔧 Using default Docker Compose connection string")
         }
