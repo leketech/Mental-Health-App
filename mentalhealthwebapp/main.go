@@ -203,7 +203,7 @@ func main() {
 	log.Printf("✅ Go version: %s", runtime.Version())
 	log.Printf("✅ CORS_ORIGIN: %s", os.Getenv("CORS_ORIGIN"))
 
-	// ✅ Bind to 0.0.0.0 for Railway compatibility (not localhost)
+	// ✅ Bind to 0.0.0.0 for Render compatibility (not localhost)
 	addr := "0.0.0.0:" + port
 	log.Printf("✅ Binding to address: %s", addr)
 	log.Printf("✅ Health check available at: %s/health", addr)

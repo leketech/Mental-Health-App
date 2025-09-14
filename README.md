@@ -16,12 +16,30 @@ A comprehensive mental health application with mood tracking, journaling, and AI
 - **Frontend**: React.js with Tailwind CSS
 - **Backend**: Go with Fiber framework
 - **Database**: PostgreSQL
-- **Deployment**: Docker containers on Railway
+- **Deployment**: Docker containers on Render
 - **Authentication**: JWT tokens with refresh token rotation
 
 ## Deployment
 
-### Railway Deployment
+### Render Deployment (Recommended)
+
+1. Install the Render CLI (optional):
+   ```bash
+   curl https://render.com/install.sh | sh
+   ```
+
+2. Deploy using the deployment script:
+   ```bash
+   ./deploy-render.sh
+   ```
+
+3. Or manually deploy through the Render dashboard:
+   - Go to https://render.com
+   - Create a new Web Service
+   - Connect your GitHub repository
+   - Use the render.yaml configuration file
+
+### Railway Deployment (Alternative)
 
 1. Install the Railway CLI:
    ```bash
@@ -45,11 +63,11 @@ A comprehensive mental health application with mood tracking, journaling, and AI
 
 ### Environment Variables
 
-Make sure to set the following environment variables in your Railway project:
+Make sure to set the following environment variables in your deployment platform:
 
 - `JWT_SECRET` - Secret key for JWT token signing (minimum 32 characters)
 - `DATABASE_URL` - PostgreSQL database connection URL
-- `CORS_ORIGIN` - Frontend domain (e.g., https://www.unwindmind.life)
+- `CORS_ORIGIN` - Frontend domain (e.g., https://unwindmind-frontend.onrender.com)
 
 ## Development
 

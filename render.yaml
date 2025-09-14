@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: unwindmind-frontend
+    env: docker
+    dockerfilePath: frontend/Dockerfile
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: REACT_APP_API_URL
+        value: https://unwindmind-api.onrender.com
+    healthCheckPath: /health.html
+    autoDeploy: false
+
+  - type: web
+    name: unwindmind-api
+    env: docker
+    dockerfilePath: mentalhealthwebapp/Dockerfile.production
+    plan: free
+    envVars:
+      - key: JWT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGIN
+        value: https://unwindmind-frontend.onrender.com
+      - key: PORT
+        value: 10000
+    healthCheckPath: /health
+    autoDeploy: false
+
+databases:
+  - name: unwindmind-db
+    plan: free
+    databaseName: unwindmind
