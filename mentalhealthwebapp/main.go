@@ -30,9 +30,16 @@ func main() {
 	}
 	log.Printf("🌍 Environment: %s", env)
 	
-	// Load .env
-	if err := godotenv.Load(); err != nil {
-		log.Printf("⚠️ .env file not found, using system env")
+	// Load .env file ONLY if we're not in a Docker/production environment
+	// This ensures Docker Compose environment variables take precedence
+	if env != "production" && os.Getenv("DOCKER_ENV") != "true" {
+		if err := godotenv.Load(); err != nil {
+			log.Printf("⚠️ .env file not found, using system env")
+		} else {
+			log.Printf("✅ Loaded .env file")
+		}
+	} else {
+		log.Printf("⏭️ Skipping .env file load in Docker/production environment")
 	}
 
 	// Debug environment variables (without exposing sensitive data)
@@ -184,10 +191,9 @@ func main() {
 		log.Printf("⚠️ JWT_SECRET is too short (%d characters), current value: %s", len(secret), secret)
 		// For development, we'll pad the secret if it's too short
 		if os.Getenv("NODE_ENV") != "production" && os.Getenv("ENV") != "production" {
-			for len(secret) < 32 {
-				secret += "x"
-			}
-			log.Printf("⚠️ JWT_SECRET was too short, padded to meet minimum length requirement. New length: %d", len(secret))
+			// Pad with a strong secret to meet minimum length requirement
+			secret = "this-is-a-very-long-secret-key-for-development-use-only-change-in-production-and-must-be-at-least-32-characters"
+			log.Printf("⚠️ JWT_SECRET was too short, replaced with proper length secret. New length: %d", len(secret))
 		} else {
 			log.Fatal("❌ FATAL: JWT_SECRET must be at least 32 characters long for security")
 		}

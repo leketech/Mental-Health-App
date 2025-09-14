@@ -27,6 +27,7 @@ services:
       PORT: 8080
       CORS_ORIGIN: http://localhost
       NODE_ENV: production
+      DOCKER_ENV: "true"
     depends_on:
       db:
         condition: service_healthy
