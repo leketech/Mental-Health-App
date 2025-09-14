@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -15,9 +15,6 @@ RUN npm config set fetch-retry-maxtimeout 60000
 # Install dependencies with retries and verbose logging
 RUN npm install --verbose --no-audit --legacy-peer-deps || npm install --verbose --no-audit --legacy-peer-deps
 
-# Install serve globally
-RUN npm install -g serve
-
 # Copy source code
 COPY . .
 
@@ -30,8 +27,17 @@ ENV GENERATE_SOURCEMAP=false
 # Build the application
 RUN npm run build:ci
 
-# Expose port
-EXPOSE 3000
+# Production stage
+FROM nginx:alpine
 
-# Start the application
-CMD ["serve", "-s", "build", "-l", "3000"]
+# Copy nginx configuration
+COPY nginx-prod.conf /etc/nginx/conf.d/default.conf
+
+# Copy built application
+COPY --from=builder /app/build /var/www/frontend
+
+# Expose port
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

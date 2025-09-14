@@ -64,7 +64,9 @@ export default function Register({ onRegister }) {
       };
 
       await api.post('/api/register', userData);
-      navigate('/login');
+      
+      // Use window.location for full page refresh to ensure proper routing
+      window.location.href = '/login';
 
       if (onRegister) {
         onRegister();
