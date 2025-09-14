@@ -7,7 +7,7 @@ services:
     plan: free
     envVars:
       - key: JWT_SECRET
-        value: this-is-a-very-long-secret-key-for-development-use-only-change-in-production-xxxx
+        value: this-is-a-very-long-secret-key-for-development-use-only-change-in-production-xxxxxx
       - key: PORT
         value: 80
     healthCheckPath: /health

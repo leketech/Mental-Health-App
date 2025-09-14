@@ -19,15 +19,17 @@ func ConnectDB() error {
         connStr = os.Getenv("DB_CONNECTION_STRING")
     }
     
-    // If we still don't have a connection string, try to construct one from Railway variables
-    if connStr == "" {
+    // Log debugging information (without exposing full connection string)
+    if connStr != "" {
+        // Log connection attempt (mask sensitive parts)
+        maskedConnStr := maskConnectionString(connStr)
+        log.Printf("🔗 Using database connection string: %s", maskedConnStr)
+    } else {
+        // If we still don't have a connection string, try to construct one from Railway variables
         // Try to construct from individual Railway variables
         host := os.Getenv("RAILWAY_POSTGRES_HOST")
         if host == "" {
             host = os.Getenv("PGHOST")
-        }
-        if host == "" {
-            host = "localhost" // fallback for local development
         }
         port := os.Getenv("RAILWAY_POSTGRES_PORT")
         if port == "" {
@@ -40,31 +42,27 @@ func ConnectDB() error {
         if user == "" {
             user = os.Getenv("PGUSER")
         }
-        if user == "" {
-            user = "mental_user" // fallback for local development
-        }
         password := os.Getenv("RAILWAY_POSTGRES_PASSWORD")
         if password == "" {
             password = os.Getenv("PGPASSWORD")
-        }
-        if password == "" {
-            password = "mental_pass" // fallback for local development
         }
         database := os.Getenv("RAILWAY_POSTGRES_DATABASE")
         if database == "" {
             database = os.Getenv("PGDATABASE")
         }
-        if database == "" {
-            database = "mental_db" // fallback for local development
-        }
         
         // If we have the individual components, construct the connection string
-        connStr = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", 
-            host, port, user, password, database)
-        log.Printf("🔧 Constructed connection string from individual variables: %s", maskConnectionString(connStr))
+        if host != "" && user != "" && password != "" && database != "" {
+            connStr = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", 
+                host, port, user, password, database)
+            log.Printf("🔧 Constructed connection string from individual variables")
+        } else if host == "" && user == "" && password == "" && database == "" {
+            // Only use localhost fallback if no environment variables are set at all
+            connStr = "host=db port=5432 user=mental_user password=mental_pass dbname=mental_db sslmode=disable"
+            log.Printf("🔧 Using default Docker Compose connection string")
+        }
     }
     
-    // Log debugging information (without exposing full connection string)
     if connStr == "" {
         log.Printf("❌ No database connection string found. Please set DATABASE_URL or DB_CONNECTION_STRING")
         log.Printf("💡 Make sure you have added a PostgreSQL service to your deployment platform")

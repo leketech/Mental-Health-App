@@ -24,7 +24,7 @@ services:
       DB_HOST: db
       DB_PORT: 5432
       DB_CONNECTION_STRING: postgres://mental_user:mental_pass@db:5432/mental_db?sslmode=disable
-      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      JWT_SECRET: this-is-a-very-long-secret-key-for-development-use-only-change-in-production-xxxxxx
       PORT: 8080
       CORS_ORIGIN: https://www.unwindmind.life
     depends_on:

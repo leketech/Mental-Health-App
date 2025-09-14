@@ -22,8 +22,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DB_CONNECTION_STRING: postgres://mental_user:mental_pass@db:5432/mental_db?sslmode=disable
-      JWT_SECRET: this-is-a-very-long-secret-key-for-development-use-only-change-in-production-xxxx
+      DB_CONNECTION_STRING: host=db port=5432 user=mental_user password=mental_pass dbname=mental_db sslmode=disable
+      JWT_SECRET: this-is-a-very-long-secret-key-for-development-use-only-change-in-production-xxxxxx
       PORT: 8080
       CORS_ORIGIN: http://localhost
       NODE_ENV: production
