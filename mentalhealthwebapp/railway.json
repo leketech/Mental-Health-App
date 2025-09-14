@@ -14,7 +14,7 @@
   "environments": {
     "production": {
       "variables": {
-        "PORT": "${{RAILWAY_PORT}}",
+        "PORT": "8080",
         "CORS_ORIGIN": "https://www.unwindmind.life",
         "DATABASE_URL": "postgresql://${{RAILWAY_POSTGRES_USER}}:${{RAILWAY_POSTGRES_PASSWORD}}@${{RAILWAY_POSTGRES_HOST}}:${{RAILWAY_POSTGRES_PORT}}/${{RAILWAY_POSTGRES_DATABASE}}?sslmode=require"
       }

@@ -194,7 +194,7 @@ func main() {
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "10000" // Default port
+		port = "10000" // Default port for local development
 	}
 
 	// ✅ Log startup information
