@@ -37,39 +37,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          # Disable cache to avoid lock file dependency issues
-          # cache: 'npm'
-          # cache-dependency-path: frontend/package-lock.json
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: |
-          # Check if lockfile exists and is in sync
-          if [ -f package-lock.json ]; then
-            echo "📦 Found package-lock.json, attempting npm ci..."
-            if npm ci --prefer-offline --cache .npm-cache; then
-              echo "✅ npm ci succeeded"
-            else
-              echo "⚠️ npm ci failed due to sync issues, regenerating lockfile..."
-              rm package-lock.json
-              npm install --package-lock-only --no-audit
-              echo "🔄 Retrying npm ci with fresh lockfile..."
-              npm ci --prefer-offline --cache .npm-cache
-            fi
-          else
-            echo "📦 No lockfile found, running npm install..."
-            npm install
-          fi
+        run: npm ci
 
       - name: Build application
-        run: |
-          # Create npm cache directory
-          mkdir -p .npm-cache
-          
-          # Build with resilient npm handling
-          npm run build:ci
+        run: npm run build
         env:
           CI: false
-          REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL || 'https://unwindmind-api.railway.app' }}
+          REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL || 'https://unwindmind-backend.onrender.com' }}
           REACT_APP_ENVIRONMENT: production
 
       - name: Setup Pages

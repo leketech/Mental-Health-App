@@ -9,7 +9,7 @@ staticSites:
     staticPublishPath: build
     envVars:
       - key: REACT_APP_API_URL
-        value: https://your-backend-url.onrender.com  # Update this with your actual backend URL
+        value: https://unwindmind-backend.onrender.com
     routes:
       - type: rewrite
         source: /*

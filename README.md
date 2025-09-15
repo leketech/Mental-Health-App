@@ -19,41 +19,27 @@ A comprehensive mental health application with mood tracking, journaling, and AI
 - **Deployment**: Docker Compose on Render
 - **Authentication**: JWT tokens with refresh token rotation
 
-## Deployment Architecture
+## Build Process
 
-The application is now deployed using a modern microservices approach:
+The application now includes a comprehensive build process that compiles both the frontend and backend:
 
-1. **Frontend**: Deployed as a separate Render Static Site
-2. **Backend**: Deployed as a Render Web Service
-3. **Database**: PostgreSQL database as a Render service
+1. **Frontend Build**: React application is built using `npm run build`
+2. **Backend Build**: Go application is compiled using `go build`
+3. **Combined Build**: Both frontend and backend are built together using `./build.sh`
 
-This separation provides better scalability, maintainability, and performance.
+### Build Scripts
 
-## Frontend Deployment (Render Static Site)
+- `npm run build` - Builds only the frontend
+- `npm run build:all` - Runs the complete build process (frontend + backend)
+- `./build.sh` - Shell script that builds both frontend and backend
 
-1. The frontend is built using `npm run build`
-2. The built files are served directly by Render's CDN
-3. All API calls are directed to the backend service
+The build process creates a `mentalhealthwebapp/frontend/build` directory that contains the compiled frontend assets, which are served by the Go backend.
 
-### Environment Variables for Frontend
+## Deployment
 
-- `REACT_APP_API_URL`: The URL of the backend API service
+### Frontend Deployment (Render Static Site)
 
-## Backend Deployment (Render Web Service)
-
-1. The backend is built using Go
-2. Deployed using Docker with a minimal Alpine Linux image
-3. Serves only the API endpoints
-
-### Environment Variables for Backend
-
-- `JWT_SECRET`: Secret key for JWT token signing (minimum 32 characters)
-- `PORT`: Port for the application (default: 8080)
-- `CORS_ORIGIN`: The URL of the frontend for CORS protection
-
-## Deployment Process
-
-### Deploying the Frontend
+The frontend is deployed as a separate static site on Render:
 
 1. Create a new Static Site on Render
 2. Connect your GitHub repository
@@ -62,20 +48,25 @@ This separation provides better scalability, maintainability, and performance.
 5. Set the publish directory to `build`
 6. Add the `REACT_APP_API_URL` environment variable
 
-### Deploying the Backend
+For detailed instructions, see [FRONTEND_DEPLOYMENT_RENDER.md](FRONTEND_DEPLOYMENT_RENDER.md).
+
+### Backend Deployment (Render Web Service)
 
 1. Create a new Web Service on Render
 2. Connect your GitHub repository
 3. Set the root directory to `mentalhealthwebapp`
-4. Set the Dockerfile path to `Dockerfile.backend`
-5. Add the required environment variables:
+4. Set the environment to `Docker`
+5. Set the Dockerfile path to `Dockerfile.backend`
+6. Add the required environment variables:
    - `JWT_SECRET`
    - `CORS_ORIGIN` (should match your frontend URL)
 
-### Render Configuration Files
+### Environment Variables
 
-- `frontend/render.yaml`: Configuration for frontend static site deployment
-- `render.yaml`: Configuration for backend web service deployment
+Make sure to set the following environment variables in your deployment platform:
+
+- `JWT_SECRET` - Secret key for JWT token signing (minimum 32 characters)
+- `PORT` - Port for the application (default: 80)
 
 ## Development
 

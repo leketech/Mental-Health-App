@@ -1,25 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="group/bw-theme">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <title>UnwindMind - Mental Health App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    
-    <!-- GitHub Pages SPA script -->
-    <script type="text/javascript">
-      // Single Page Apps for GitHub Pages
-      // https://github.com/rafgraph/spa-github-pages
-      (function(l) {
-        if (l.search[1] === '/' ) {
-          var decoded = l.search.slice(1).split('&').map(function(s) {
-            return s.replace(/~and~/g, '&')
-          }).join('?');
-          window.history.replaceState(null, null,
-              l.pathname.slice(0, -1) + decoded + l.hash
-          );
-        }
-      }(window.location))
-    </script>
     
     <!-- Google Fonts -->
     <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
@@ -40,7 +24,7 @@
         --bg-secondary: #f8fafc;
         --border-color: #e2e8f0;
       }
-      .group.bw-theme\/bw-theme {
+      .dark {
         --primary-color: #ffffff;
         --secondary-color: #374151;
         --text-primary: #ffffff;
@@ -51,8 +35,10 @@
       }
     </style>
   </head>
-  <body class="bg-slate-50 group-[:not(.bw-theme)]/bw-theme:bg-slate-50 group-bw-theme/bw-theme:bg-gray-100">
+  <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <!-- Test script to verify JavaScript is running -->
+    <script src="./test-frontend.js"></script>
   </body>
 </html>

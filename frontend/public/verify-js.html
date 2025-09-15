@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JavaScript Verification Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>JavaScript Verification Test</h1>
+    <p>This page tests whether JavaScript is running correctly in your browser.</p>
+    
+    <div id="test-results">
+        <div class="test-result">Running tests...</div>
+    </div>
+
+    <script>
+        // Test results container
+        const testResults = document.getElementById('test-results');
+        testResults.innerHTML = '';
+
+        // Test 1: Basic JavaScript execution
+        function testJavaScriptExecution() {
+            const result = document.createElement('div');
+            result.className = 'test-result';
+            try {
+                result.innerHTML = '<span class="success">✓ JavaScript is enabled and running</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ JavaScript execution failed: ' + e.message + '</span>';
+            }
+            testResults.appendChild(result);
+        }
+
+        // Test 2: DOM manipulation
+        function testDOMManipulation() {
+            const result = document.createElement('div');
+            result.className = 'test-result';
+            try {
+                const testElement = document.createElement('div');
+                testElement.id = 'test-element';
+                testElement.textContent = 'DOM manipulation test';
+                document.body.appendChild(testElement);
+                
+                if (document.getElementById('test-element')) {
+                    result.innerHTML = '<span class="success">✓ DOM manipulation working</span>';
+                    document.body.removeChild(testElement);
+                } else {
+                    result.innerHTML = '<span class="error">✗ DOM element not found after creation</span>';
+                }
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ DOM manipulation failed: ' + e.message + '</span>';
+            }
+            testResults.appendChild(result);
+        }
+
+        // Test 3: Console logging
+        function testConsoleLogging() {
+            const result = document.createElement('div');
+            result.className = 'test-result';
+            try {
+                console.log('Console logging test');
+                result.innerHTML = '<span class="success">✓ Console logging working</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ Console logging failed: ' + e.message + '</span>';
+            }
+            testResults.appendChild(result);
+        }
+
+        // Test 4: Event handling
+        function testEventHandling() {
+            const result = document.createElement('div');
+            result.className = 'test-result';
+            try {
+                let eventTriggered = false;
+                const testButton = document.createElement('button');
+                testButton.id = 'test-button';
+                testButton.textContent = 'Test Button';
+                testButton.style.display = 'none';
+                document.body.appendChild(testButton);
+                
+                testButton.addEventListener('click', function() {
+                    eventTriggered = true;
+                });
+                
+                testButton.click();
+                
+                if (eventTriggered) {
+                    result.innerHTML = '<span class="success">✓ Event handling working</span>';
+                } else {
+                    result.innerHTML = '<span class="error">✗ Event handling not working</span>';
+                }
+                
+                document.body.removeChild(testButton);
+            } catch (e) {
+                result.innerHTML = '<span class="error">✗ Event handling failed: ' + e.message + '</span>';
+            }
+            testResults.appendChild(result);
+        }
+
+        // Run all tests
+        document.addEventListener('DOMContentLoaded', function() {
+            testJavaScriptExecution();
+            testDOMManipulation();
+            testConsoleLogging();
+            testEventHandling();
+            
+            // Add final message
+            const finalMessage = document.createElement('div');
+            finalMessage.className = 'test-result';
+            finalMessage.innerHTML = '<strong>If all tests show green checkmarks, JavaScript is working correctly in your browser.</strong>';
+            testResults.appendChild(finalMessage);
+        });
+    </script>
+</body>
+</html>
