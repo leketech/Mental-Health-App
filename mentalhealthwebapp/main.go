@@ -105,8 +105,15 @@ func main() {
 	// app.Use(middleware.SecurityMiddleware())
 
 	// Serve frontend static files
+	// In Docker, frontend build is copied to /root/frontend/build
+	// In development, it's in ./frontend/build
+	frontendPath := "./frontend/build"
+	if _, err := os.Stat("/root/frontend/build"); err == nil {
+		frontendPath = "/root/frontend/build"
+	}
+	
 	app.Use("/", filesystem.New(filesystem.Config{
-		Root:   http.Dir("./frontend/build"),
+		Root:   http.Dir(frontendPath),
 		Browse: true,
 	}))
 
