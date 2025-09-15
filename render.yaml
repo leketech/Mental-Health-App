@@ -1,15 +1,17 @@
 services:
   - type: web
-    name: unwindmind-app
+    name: unwindmind-backend
     env: docker
     rootDir: mentalhealthwebapp
-    dockerfilePath: Dockerfile.production
+    dockerfilePath: Dockerfile.backend
     plan: free
     envVars:
       - key: JWT_SECRET
         sync: false
       - key: PORT
         value: 8080
+      - key: CORS_ORIGIN
+        value: https://unwindmind-frontend.onrender.com  # Update with your actual frontend URL
     healthCheckPath: /health
     autoDeploy: false
 

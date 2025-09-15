@@ -1,0 +1,18 @@
+# Render configuration for frontend static site
+# This file should be used to deploy the frontend as a separate static site
+
+staticSites:
+  - name: unwindmind-frontend
+    type: static
+    rootDir: .
+    buildCommand: npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://your-backend-url.onrender.com  # Update this with your actual backend URL
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    autoDeploy: true
+    plan: free

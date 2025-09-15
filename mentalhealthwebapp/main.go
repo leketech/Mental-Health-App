@@ -125,21 +125,6 @@ func main() {
 		return c.Next()
 	})
 
-	// Serve frontend static files
-	app.Static("/", "./frontend/build", fiber.Static{
-		Compress: true,
-		ByteRange: true,
-		Browse: false,
-		Index: "index.html",
-		CacheDuration: 10 * time.Second,
-		MaxAge: 3600,
-	})
-
-	// Public routes
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendFile("./frontend/build/index.html")
-	})
-
 	// Health check endpoint for Render/Railway
 	app.Get("/health", func(c *fiber.Ctx) error {
 		// Check database connection if available

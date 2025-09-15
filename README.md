@@ -19,77 +19,63 @@ A comprehensive mental health application with mood tracking, journaling, and AI
 - **Deployment**: Docker Compose on Render
 - **Authentication**: JWT tokens with refresh token rotation
 
-## Build Process
+## Deployment Architecture
 
-The application now includes a comprehensive build process that compiles both the frontend and backend:
+The application is now deployed using a modern microservices approach:
 
-1. **Frontend Build**: React application is built using `npm run build`
-2. **Backend Build**: Go application is compiled using `go build`
-3. **Combined Build**: Both frontend and backend are built together using `./build.sh`
+1. **Frontend**: Deployed as a separate Render Static Site
+2. **Backend**: Deployed as a Render Web Service
+3. **Database**: PostgreSQL database as a Render service
 
-### Build Scripts
+This separation provides better scalability, maintainability, and performance.
 
-- `npm run build` - Builds only the frontend
-- `npm run build:all` - Runs the complete build process (frontend + backend)
-- `./build.sh` - Shell script that builds both frontend and backend
+## Frontend Deployment (Render Static Site)
 
-The build process creates a `mentalhealthwebapp/frontend/build` directory that contains the compiled frontend assets, which are served by the Go backend.
+1. The frontend is built using `npm run build`
+2. The built files are served directly by Render's CDN
+3. All API calls are directed to the backend service
 
-## Deployment
+### Environment Variables for Frontend
 
-### Render Deployment (Recommended)
+- `REACT_APP_API_URL`: The URL of the backend API service
 
-1. **Prerequisites**:
-   - Make sure there's no [go.mod](file:///mnt/c/Users/Leke/Mental-Health-App/go.mod) file in the root directory (it confuses Render)
-   - Ensure your `render.yaml` file is in the root directory
+## Backend Deployment (Render Web Service)
 
-2. **Deploy using Docker Compose**:
-   - Render will use `mentalhealthwebapp/docker-compose.render.yml` to deploy both frontend and backend services together
-   - This approach manages both services as a single deployment
+1. The backend is built using Go
+2. Deployed using Docker with a minimal Alpine Linux image
+3. Serves only the API endpoints
 
-3. **Deploy using the deployment script**:
-   ```bash
-   ./deploy-render.sh
-   ```
+### Environment Variables for Backend
 
-4. **Or manually deploy through the Render dashboard**:
-   - Go to https://render.com
-   - Create a new Web Service
-   - Connect your GitHub repository
-   - Set the root directory to `mentalhealthwebapp`
-   - Use the Docker command: `docker-compose -f docker-compose.render.yml up`
-   - Add environment variables:
-     - `JWT_SECRET` (minimum 32 characters)
-     - `PORT` (set to 80)
+- `JWT_SECRET`: Secret key for JWT token signing (minimum 32 characters)
+- `PORT`: Port for the application (default: 8080)
+- `CORS_ORIGIN`: The URL of the frontend for CORS protection
 
-### Railway Deployment (Alternative)
+## Deployment Process
 
-1. Install the Railway CLI:
-   ```bash
-   curl -fsSL https://railway.app/install.sh | sh
-   ```
+### Deploying the Frontend
 
-2. Login to Railway:
-   ```bash
-   railway login
-   ```
+1. Create a new Static Site on Render
+2. Connect your GitHub repository
+3. Set the root directory to `frontend`
+4. Set the build command to `npm run build`
+5. Set the publish directory to `build`
+6. Add the `REACT_APP_API_URL` environment variable
 
-3. Deploy the application:
-   ```bash
-   ./deploy-railway.sh
-   ```
+### Deploying the Backend
 
-   Or manually:
-   ```bash
-   railway up
-   ```
+1. Create a new Web Service on Render
+2. Connect your GitHub repository
+3. Set the root directory to `mentalhealthwebapp`
+4. Set the Dockerfile path to `Dockerfile.backend`
+5. Add the required environment variables:
+   - `JWT_SECRET`
+   - `CORS_ORIGIN` (should match your frontend URL)
 
-### Environment Variables
+### Render Configuration Files
 
-Make sure to set the following environment variables in your deployment platform:
-
-- `JWT_SECRET` - Secret key for JWT token signing (minimum 32 characters)
-- `PORT` - Port for the application (default: 80)
+- `frontend/render.yaml`: Configuration for frontend static site deployment
+- `render.yaml`: Configuration for backend web service deployment
 
 ## Development
 
