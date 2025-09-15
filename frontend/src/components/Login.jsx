@@ -18,6 +18,14 @@ export default function Login({ onLogin }) {
     // Block URLs with suspicious patterns
     const search = location.search;
     
+    // Check for excessively long query strings (Cloudflare typically blocks at ~4KB)
+    if (search.length > 1024) {
+      console.warn('Blocked excessively long URL query:', search.length, 'characters');
+      // Redirect to clean login page
+      navigate('/login', { replace: true });
+      return;
+    }
+    
     // Check for SQL injection patterns
     const sqlPatterns = [
       '~and~', 'union select', 'drop table', 'delete from', 
@@ -39,13 +47,10 @@ export default function Login({ onLogin }) {
       new RegExp(pattern, 'i').test(search)
     );
     
-    // Check for excessively long query strings
-    const hasLongQuery = search.length > 200;
-    
     // Check for excessive repetition of characters
     const hasRepetition = /(.)\1{10,}/.test(search);
     
-    if (hasMaliciousPattern || hasLongQuery || hasRepetition) {
+    if (hasMaliciousPattern || hasRepetition) {
       console.warn('Blocked malicious URL attempt:', search);
       // Redirect to clean login page
       navigate('/login', { replace: true });

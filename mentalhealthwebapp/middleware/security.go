@@ -19,6 +19,15 @@ func SecurityMiddleware() fiber.Handler {
 		// Log the request for monitoring
 		log.Printf("🔍 Security check for request: %s", url)
 
+		// Check for excessively long URLs (Cloudflare typically blocks at ~4KB)
+		if len(url) > 2048 {
+			log.Printf("🚨 Blocked excessively long URL: %d characters", len(url))
+			return c.Status(400).JSON(fiber.Map{
+				"error": "Invalid request",
+				"message": "Request URL is too long",
+			})
+		}
+
 		// Check for SQL injection patterns
 		sqlPatterns := []string{
 			`(?i)union\s+select`, `(?i)drop\s+table`, `(?i)delete\s+from`,
