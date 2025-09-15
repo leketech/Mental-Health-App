@@ -1,0 +1,24 @@
+{
+  "name": "mental-health-app",
+  "version": "1.0.0",
+  "description": "A mental health application with mood tracking, journaling, and AI chat support",
+  "main": "mentalhealthwebapp/main.go",
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "build:all": "./build.sh",
+    "start": "cd mentalhealthwebapp && ./main",
+    "dev": "concurrently \"cd mentalhealthwebapp && go run main.go\" \"cd frontend && npm start\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mental-health",
+    "wellness",
+    "mood-tracking",
+    "journaling"
+  ],
+  "author": "Mental Health App Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+}

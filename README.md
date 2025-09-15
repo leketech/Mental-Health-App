@@ -19,6 +19,22 @@ A comprehensive mental health application with mood tracking, journaling, and AI
 - **Deployment**: Docker Compose on Render
 - **Authentication**: JWT tokens with refresh token rotation
 
+## Build Process
+
+The application now includes a comprehensive build process that compiles both the frontend and backend:
+
+1. **Frontend Build**: React application is built using `npm run build`
+2. **Backend Build**: Go application is compiled using `go build`
+3. **Combined Build**: Both frontend and backend are built together using `./build.sh`
+
+### Build Scripts
+
+- `npm run build` - Builds only the frontend
+- `npm run build:all` - Runs the complete build process (frontend + backend)
+- `./build.sh` - Shell script that builds both frontend and backend
+
+The build process creates a `mentalhealthwebapp/frontend/build` directory that contains the compiled frontend assets, which are served by the Go backend.
+
 ## Deployment
 
 ### Render Deployment (Recommended)

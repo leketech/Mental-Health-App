@@ -5,6 +5,9 @@
 
 echo "🔍 Starting build process..."
 
+# Navigate to the project root directory
+cd "$(dirname "$0")"
+
 # Create build directory if it doesn't exist
 mkdir -p mentalhealthwebapp/frontend/build
 
@@ -15,7 +18,7 @@ npm run build
 
 # Copy built files to backend directory
 echo "🚚 Copying frontend build to backend..."
-cp -r build ../mentalhealthwebapp/frontend/
+cp -r build/* ../mentalhealthwebapp/frontend/build/
 
 # Go back to root directory
 cd ..

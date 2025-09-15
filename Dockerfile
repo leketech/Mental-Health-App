@@ -1,5 +1,24 @@
-# Use the official Go image as base
-FROM golang:1.22-alpine AS builder
+# Multi-stage build: Node.js for frontend, Go for backend
+FROM node:18-alpine AS frontend-builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy frontend package files
+COPY frontend/package*.json ./frontend/
+
+# Install frontend dependencies
+WORKDIR /app/frontend
+RUN npm ci --legacy-peer-deps
+
+# Copy frontend source code
+COPY frontend/ .
+
+# Build the frontend
+RUN npm run build
+
+# Use the official Go image as base for backend
+FROM golang:1.22-alpine AS backend-builder
 
 # Set working directory
 WORKDIR /app
@@ -25,8 +44,11 @@ RUN apk --no-cache add ca-certificates
 # Set working directory
 WORKDIR /root/
 
-# Copy the binary from builder stage
-COPY --from=builder /app/main .
+# Copy the backend binary from builder stage
+COPY --from=backend-builder /app/main .
+
+# Copy the frontend build from frontend-builder stage
+COPY --from=frontend-builder /app/frontend/build /root/frontend/build
 
 # Expose port (Railway will set PORT environment variable)
 EXPOSE $PORT
