@@ -18,7 +18,7 @@ COPY ../frontend/ .
 RUN npm run build
 
 # Backend builder stage
-FROM golang:1.22-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 # Set Go toolchain to use the container's Go version
 ENV GOTOOLCHAIN=local
