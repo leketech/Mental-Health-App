@@ -3,13 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/joho/godotenv"
 
 	"github.com/leketech/mental-health-app/config"
@@ -112,10 +111,31 @@ func main() {
 		frontendPath = "/root/frontend/build"
 	}
 	
-	app.Use("/", filesystem.New(filesystem.Config{
-		Root:   http.Dir(frontendPath),
-		Browse: true,
-	}))
+	// Create a custom handler for SPA routing
+	app.Use(func(c *fiber.Ctx) error {
+		// For API routes, continue to next handler
+		if strings.HasPrefix(c.Path(), "/api/") {
+			return c.Next()
+		}
+		
+		// For health check, continue to next handler
+		if c.Path() == "/health" {
+			return c.Next()
+		}
+		
+		// Try to serve the requested file
+		filePath := filepath.Join(frontendPath, c.Path())
+		
+		// Check if file exists
+		if _, err := os.Stat(filePath); os.IsNotExist(err) {
+			// If file doesn't exist, serve index.html for SPA routing
+			indexPath := filepath.Join(frontendPath, "index.html")
+			return c.SendFile(indexPath)
+		}
+		
+		// Serve the file if it exists
+		return c.SendFile(filePath)
+	})
 
 	// CORS middleware
 	app.Use(func(c *fiber.Ctx) error {
