@@ -28,7 +28,7 @@ export default function Register({ onRegister }) {
     // Check for SQL injection patterns
     const sqlPatterns = [
       '~and~', 'union select', 'drop table', 'delete from', 
-      'insert into', 'update.*set', '--', ';', '/*', '*/'
+      'insert into', 'update.*set', '--', ';', '/\\*', '\\*/'
     ];
     
     // Check for XSS patterns

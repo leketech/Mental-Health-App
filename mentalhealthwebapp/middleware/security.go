@@ -55,7 +55,9 @@ func SecurityMiddleware() fiber.Handler {
 		// Check query parameters
 		for key, values := range query {
 			for _, value := range values {
-				fullParam := key + "=" + fmt.Sprintf("%s", value)
+				// Convert value to string properly
+				valueStr := fmt.Sprintf("%v", value)
+				fullParam := key + "=" + valueStr
 				
 				// Check for excessively long parameters
 				if len(fullParam) > 200 {
@@ -83,7 +85,6 @@ func SecurityMiddleware() fiber.Handler {
 				}
 				
 				// Check for excessive repetition of characters
-				valueStr := fmt.Sprintf("%s", value)
 				if regexp.MustCompile(`(.)\1{10,}`).MatchString(valueStr) {
 					log.Printf("🚨 Blocked parameter with excessive repetition: %s", valueStr)
 					return c.Status(400).JSON(fiber.Map{
