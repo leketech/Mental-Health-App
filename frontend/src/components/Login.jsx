@@ -1,16 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../utils/auth';
 import { useTheme } from '../contexts/ThemeContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Login({ onLogin }) {
   const { classes } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Security validation to block suspicious URLs
+  useEffect(() => {
+    // Block URLs with suspicious patterns
+    if (location.search.includes('~and~') || location.search.length > 200) {
+      console.warn('Blocked suspicious URL:', location.search);
+      navigate('/login', { replace: true }); // Redirect to clean URL
+    }
+  }, [location, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

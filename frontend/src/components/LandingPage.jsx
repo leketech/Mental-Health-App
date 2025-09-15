@@ -1,9 +1,20 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 
 const LandingPage = ({ user, onLogout }) => {
   const { toggleTheme } = useTheme();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Security validation to block suspicious URLs
+  useEffect(() => {
+    // Block URLs with suspicious patterns
+    if (location.search.includes('~and~') || location.search.length > 200) {
+      console.warn('Blocked suspicious URL:', location.search);
+      navigate('/', { replace: true }); // Redirect to clean URL
+    }
+  }, [location, navigate]);
 
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group-[:not(.bw-theme)]/bw-theme:bg-white group-bw-theme/bw-theme:bg-white overflow-x-hidden" style={{fontFamily: 'Inter, "Noto Sans", sans-serif'}}>

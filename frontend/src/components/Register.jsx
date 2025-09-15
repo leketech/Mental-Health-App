@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../utils/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 
 export default function Register({ onRegister }) {
@@ -18,6 +18,16 @@ export default function Register({ onRegister }) {
   const [passwordStrength, setPasswordStrength] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Security validation to block suspicious URLs
+  useEffect(() => {
+    // Block URLs with suspicious patterns
+    if (location.search.includes('~and~') || location.search.length > 200) {
+      console.warn('Blocked suspicious URL:', location.search);
+      navigate('/register', { replace: true }); // Redirect to clean URL
+    }
+  }, [location, navigate]);
 
   const calculatePasswordStrength = (password) => {
     if (password.length < 6) return { strength: 'weak', color: 'text-red-500', message: 'Too short' };
