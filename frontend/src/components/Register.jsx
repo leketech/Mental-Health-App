@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import api from '../utils/auth';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 
 export default function Register({ onRegister }) {
@@ -18,7 +18,6 @@ export default function Register({ onRegister }) {
   const [passwordStrength, setPasswordStrength] = useState('');
 
   const navigate = useNavigate();
-  const location = useLocation();
 
   // Temporarily disable security validation
   // useEffect(() => {

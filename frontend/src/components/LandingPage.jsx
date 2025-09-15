@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 
 const LandingPage = ({ user, onLogout }) => {
   const { toggleTheme } = useTheme();
-  const location = useLocation();
   const navigate = useNavigate();
 
   // Temporarily disable security validation
