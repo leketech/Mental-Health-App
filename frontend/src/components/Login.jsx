@@ -13,12 +13,42 @@ export default function Login({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Security validation to block suspicious URLs
+  // Enhanced security validation to block malicious URLs
   useEffect(() => {
     // Block URLs with suspicious patterns
-    if (location.search.includes('~and~') || location.search.length > 200) {
-      console.warn('Blocked suspicious URL:', location.search);
-      navigate('/login', { replace: true }); // Redirect to clean URL
+    const search = location.search;
+    
+    // Check for SQL injection patterns
+    const sqlPatterns = [
+      '~and~', 'union select', 'drop table', 'delete from', 
+      'insert into', 'update.*set', '--', ';', '/*', '*/'
+    ];
+    
+    // Check for XSS patterns
+    const xssPatterns = [
+      '<script', 'javascript:', 'onload', 'onerror', 
+      'onclick', 'onmouseover', 'eval\\(', 'document.cookie'
+    ];
+    
+    // Combine all patterns
+    const maliciousPatterns = [...sqlPatterns, ...xssPatterns];
+    
+    // Check if any malicious pattern is present
+    const hasMaliciousPattern = maliciousPatterns.some(pattern => 
+      new RegExp(pattern, 'i').test(search)
+    );
+    
+    // Check for excessively long query strings
+    const hasLongQuery = search.length > 200;
+    
+    // Check for excessive repetition of characters
+    const hasRepetition = /(.)\1{10,}/.test(search);
+    
+    if (hasMaliciousPattern || hasLongQuery || hasRepetition) {
+      console.warn('Blocked malicious URL attempt:', search);
+      // Redirect to clean login page
+      navigate('/login', { replace: true });
+      return;
     }
   }, [location, navigate]);
 

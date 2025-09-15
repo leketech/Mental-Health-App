@@ -20,12 +20,42 @@ export default function Register({ onRegister }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Security validation to block suspicious URLs
+  // Enhanced security validation to block malicious URLs
   useEffect(() => {
     // Block URLs with suspicious patterns
-    if (location.search.includes('~and~') || location.search.length > 200) {
-      console.warn('Blocked suspicious URL:', location.search);
-      navigate('/register', { replace: true }); // Redirect to clean URL
+    const search = location.search;
+    
+    // Check for SQL injection patterns
+    const sqlPatterns = [
+      '~and~', 'union select', 'drop table', 'delete from', 
+      'insert into', 'update.*set', '--', ';', '/*', '*/'
+    ];
+    
+    // Check for XSS patterns
+    const xssPatterns = [
+      '<script', 'javascript:', 'onload', 'onerror', 
+      'onclick', 'onmouseover', 'eval\\(', 'document.cookie'
+    ];
+    
+    // Combine all patterns
+    const maliciousPatterns = [...sqlPatterns, ...xssPatterns];
+    
+    // Check if any malicious pattern is present
+    const hasMaliciousPattern = maliciousPatterns.some(pattern => 
+      new RegExp(pattern, 'i').test(search)
+    );
+    
+    // Check for excessively long query strings
+    const hasLongQuery = search.length > 200;
+    
+    // Check for excessive repetition of characters
+    const hasRepetition = /(.)\1{10,}/.test(search);
+    
+    if (hasMaliciousPattern || hasLongQuery || hasRepetition) {
+      console.warn('Blocked malicious URL attempt:', search);
+      // Redirect to clean register page
+      navigate('/register', { replace: true });
+      return;
     }
   }, [location, navigate]);
 
@@ -182,7 +212,7 @@ export default function Register({ onRegister }) {
                   placeholder="Create a password"
                 />
                 <svg className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${classes.textMuted}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 01-8 0v4h8z" />
                 </svg>
                 <button
                   type="button"

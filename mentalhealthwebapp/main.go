@@ -99,6 +99,10 @@ func main() {
 	// Fiber app
 	app := fiber.New()
 
+	// Add security middleware to block malicious requests
+	// This should be one of the first middlewares to catch threats early
+	app.Use(middleware.SecurityMiddleware())
+
 	// CORS middleware
 	app.Use(func(c *fiber.Ctx) error {
 		// Get CORS origin from environment
