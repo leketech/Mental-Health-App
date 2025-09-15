@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"runtime"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/joho/godotenv"
 
 	"github.com/leketech/mental-health-app/config"
@@ -99,9 +101,14 @@ func main() {
 	// Fiber app
 	app := fiber.New()
 
-	// Add security middleware to block malicious requests
-	// This should be one of the first middlewares to catch threats early
-	app.Use(middleware.SecurityMiddleware())
+	// Temporarily disable security middleware
+	// app.Use(middleware.SecurityMiddleware())
+
+	// Serve frontend static files
+	app.Use("/", filesystem.New(filesystem.Config{
+		Root:   http.Dir("./frontend/build"),
+		Browse: true,
+	}))
 
 	// CORS middleware
 	app.Use(func(c *fiber.Ctx) error {

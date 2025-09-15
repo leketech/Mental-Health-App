@@ -20,50 +20,50 @@ export default function Register({ onRegister }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Enhanced security validation to block malicious URLs
-  useEffect(() => {
-    // Block URLs with suspicious patterns
-    const search = location.search;
+  // Temporarily disable security validation
+  // useEffect(() => {
+  //   // Block URLs with suspicious patterns
+  //   const search = location.search;
     
-    // Check for excessively long query strings (Cloudflare typically blocks at ~4KB)
-    if (search.length > 1024) {
-      console.warn('Blocked excessively long URL query:', search.length, 'characters');
-      // Redirect to clean register page
-      navigate('/register', { replace: true });
-      return;
-    }
+  //   // Check for excessively long query strings (Cloudflare typically blocks at ~4KB)
+  //   if (search.length > 1024) {
+  //     console.warn('Blocked excessively long URL query:', search.length, 'characters');
+  //     // Redirect to clean register page
+  //     navigate('/register', { replace: true });
+  //     return;
+  //   }
     
-    // Check for SQL injection patterns
-    const sqlPatterns = [
-      '~and~', 'union select', 'drop table', 'delete from', 
-      'insert into', 'update.*set', '--', ';', '/\\*', '\\*/'
-    ];
+  //   // Check for SQL injection patterns
+  //   const sqlPatterns = [
+  //     '~and~', 'union select', 'drop table', 'delete from', 
+  //     'insert into', 'update.*set', '--', ';', '/\\*', '\\*/'
+  //   ];
     
-    // Check for XSS patterns
-    const xssPatterns = [
-      // eslint-disable-next-line no-script-url
-      '<script', 'javascript\\:', 'onload', 'onerror', 
-      'onclick', 'onmouseover', 'eval\\(', 'document\\.cookie'
-    ];
+  //   // Check for XSS patterns
+  //   const xssPatterns = [
+  //     // eslint-disable-next-line no-script-url
+  //     '<script', 'javascript\\:', 'onload', 'onerror', 
+  //     'onclick', 'onmouseover', 'eval\\(', 'document\\.cookie'
+  //   ];
     
-    // Combine all patterns
-    const maliciousPatterns = [...sqlPatterns, ...xssPatterns];
+  //   // Combine all patterns
+  //   const maliciousPatterns = [...sqlPatterns, ...xssPatterns];
     
-    // Check if any malicious pattern is present
-    const hasMaliciousPattern = maliciousPatterns.some(pattern => 
-      new RegExp(pattern, 'i').test(search)
-    );
+  //   // Check if any malicious pattern is present
+  //   const hasMaliciousPattern = maliciousPatterns.some(pattern => 
+  //     new RegExp(pattern, 'i').test(search)
+  //   );
     
-    // Check for excessive repetition of characters
-    const hasRepetition = /(.)\1{10,}/.test(search);
+  //   // Check for excessive repetition of characters
+  //   const hasRepetition = /(.)\1{10,}/.test(search);
     
-    if (hasMaliciousPattern || hasRepetition) {
-      console.warn('Blocked malicious URL attempt:', search);
-      // Redirect to clean register page
-      navigate('/register', { replace: true });
-      return;
-    }
-  }, [location, navigate]);
+  //   if (hasMaliciousPattern || hasRepetition) {
+  //     console.warn('Blocked malicious URL attempt:', search);
+  //     // Redirect to clean register page
+  //     navigate('/register', { replace: true });
+  //     return;
+  //   }
+  // }, [location, navigate]);
 
   const calculatePasswordStrength = (password) => {
     if (password.length < 6) return { strength: 'weak', color: 'text-red-500', message: 'Too short' };
