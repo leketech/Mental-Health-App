@@ -21,7 +21,7 @@ export default function Login({ onLogin }) {
     // Check for SQL injection patterns
     const sqlPatterns = [
       '~and~', 'union select', 'drop table', 'delete from', 
-      'insert into', 'update.*set', '--', ';', '/*', '*/'
+      'insert into', 'update.*set', '--', ';', '/\\*', '\\*/'
     ];
     
     // Check for XSS patterns
@@ -110,7 +110,9 @@ export default function Login({ onLogin }) {
                   <p className="text-red-800 text-sm font-medium">{error}</p>
                 </div>
               </div>
-            )}
+            )
+
+}
 
             <div>
               <label htmlFor="email" className={`block text-sm font-medium ${classes.textSecondary} mb-2`}>
