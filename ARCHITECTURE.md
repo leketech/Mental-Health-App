@@ -45,7 +45,7 @@ graph TB
 - **Technology**: Go with Fiber framework
 - **Hosting**: Docker container running on Render infrastructure
 - **API**: RESTful endpoints for all application functionality
-- **Security**: JWT authentication, CORS protection
+- **Security**: JWT authentication, CORS protection, URL validation, WAF rules
 
 ### Database Service
 - **Type**: Render PostgreSQL

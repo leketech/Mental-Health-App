@@ -84,6 +84,8 @@ railway up
 - [ ] CORS prevents unauthorized domains
 - [ ] Passwords properly hashed in database
 - [ ] Token blacklisting works on logout
+- [ ] URL validation in frontend blocks suspicious patterns
+- [ ] WAF rules block malicious requests
 
 ## 📊 **Monitoring & Logs**
 

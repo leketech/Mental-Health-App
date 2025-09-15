@@ -114,6 +114,10 @@ All protected endpoints require a valid JWT token in the Authorization header.
 - CORS protection
 - Input validation and sanitization
 - SQL injection prevention through prepared statements
+- URL validation to prevent malicious requests
+- WAF rules to block suspicious patterns
+
+For detailed security measures, see [SECURITY.md](SECURITY.md).
 
 ## License
 
