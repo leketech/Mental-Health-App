@@ -20,8 +20,9 @@ const LandingPage = ({ user, onLogout }) => {
     
     // Check for XSS patterns
     const xssPatterns = [
-      '<script', 'javascript:', 'onload', 'onerror', 
-      'onclick', 'onmouseover', 'eval\\(', 'document.cookie'
+      // eslint-disable-next-line no-script-url
+      '<script', 'javascript\\:', 'onload', 'onerror', 
+      'onclick', 'onmouseover', 'eval\\(', 'document\\.cookie'
     ];
     
     // Combine all patterns
