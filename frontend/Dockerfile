@@ -6,14 +6,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Configure npm for better reliability
-RUN npm config set fetch-retries 5
-RUN npm config set fetch-retry-factor 2
-RUN npm config set fetch-retry-mintimeout 10000
-RUN npm config set fetch-retry-maxtimeout 60000
-
-# Install dependencies with retries and verbose logging
-RUN npm install --verbose --no-audit --legacy-peer-deps || npm install --verbose --no-audit --legacy-peer-deps
+# Install dependencies
+RUN npm ci --legacy-peer-deps --only=production
 
 # Copy source code
 COPY . .
@@ -25,7 +19,7 @@ ENV CI=false
 ENV GENERATE_SOURCEMAP=false
 
 # Build the application
-RUN npm run build:ci
+RUN npm run build
 
 # Production stage
 FROM nginx:alpine

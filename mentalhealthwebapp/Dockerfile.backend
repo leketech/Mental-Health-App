@@ -1,4 +1,4 @@
-# Backend-only Dockerfile
+# Backend builder stage
 FROM golang:1.24-alpine AS builder
 
 # Set Go toolchain to use the container's Go version
@@ -39,6 +39,9 @@ WORKDIR /root/
 
 # Copy the binary from builder stage
 COPY --from=builder /app/main .
+
+# Create directory for frontend files
+RUN mkdir -p ./frontend/build
 
 # Expose port (Railway/Render will set PORT environment variable)
 EXPOSE ${PORT:-3001}

@@ -2,8 +2,8 @@ services:
   - type: web
     name: unwindmind-backend
     env: docker
-    rootDir: .
-    dockerfilePath: Dockerfile
+    rootDir: mentalhealthwebapp
+    dockerfilePath: Dockerfile.backend
     plan: free
     envVars:
       - key: JWT_SECRET

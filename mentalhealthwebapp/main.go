@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -9,6 +8,10 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
 
 	"github.com/leketech/mental-health-app/config"
@@ -40,51 +43,7 @@ func main() {
 			log.Printf("✅ Loaded .env file")
 		}
 	} else {
-		log.Printf("⏭️ Skipping .env file load in Docker/production environment")
-	}
-
-	// Debug environment variables (without exposing sensitive data)
-	log.Printf("📊 Environment check:")
-	log.Printf("  - DATABASE_URL: %s", func() string {
-		if url := os.Getenv("DATABASE_URL"); url != "" {
-			// Mask the URL for security
-			masked := url
-			if len(url) > 20 {
-				masked = url[:15] + "..." + url[len(url)-10:]
-			}
-			return "[SET] " + masked
-		}
-		return "[NOT SET]"
-	}())
-	log.Printf("  - DB_CONNECTION_STRING: %s", func() string {
-		if url := os.Getenv("DB_CONNECTION_STRING"); url != "" {
-			// Mask the URL for security
-			masked := url
-			if len(url) > 20 {
-				masked = url[:15] + "..." + url[len(url)-10:]
-			}
-			return "[SET] " + masked
-		}
-		return "[NOT SET]"
-	}())
-	log.Printf("  - JWT_SECRET: %s", func() string {
-		if secret := os.Getenv("JWT_SECRET"); secret != "" {
-			return "[SET] Length: " + fmt.Sprintf("%d", len(secret))
-		}
-		return "[NOT SET]"
-	}())
-	log.Printf("  - PORT: %s", os.Getenv("PORT"))
-	log.Printf("  - CORS_ORIGIN: %s", os.Getenv("CORS_ORIGIN"))
-	
-	// Print all environment variables for debugging (excluding sensitive ones)
-	log.Printf("🔍 All environment variables (excluding sensitive):")
-	for _, env := range os.Environ() {
-		if !strings.Contains(env, "SECRET") && !strings.Contains(env, "PASSWORD") && !strings.Contains(env, "KEY") {
-			parts := strings.SplitN(env, "=", 2)
-			if len(parts) == 2 {
-				log.Printf("  - %s=%s", parts[0], parts[1])
-			}
-		}
+			log.Printf("⏭️ Skipping .env file load in Docker/production environment")
 	}
 
 	// Connect to DB
@@ -97,11 +56,19 @@ func main() {
 		defer config.DB.Close()
 	}
 
-	// Fiber app
-	app := fiber.New()
+	// Fiber app with performance optimizations
+	app := fiber.New(fiber.Config{
+		Prefork:       false, // Disabled for containerized environments
+		CaseSensitive: true,
+		StrictRouting: true,
+		ServerHeader:  "UnwindMind",
+		AppName:       "UnwindMind API v1.0",
+	})
 
-	// Temporarily disable security middleware
-	// app.Use(middleware.SecurityMiddleware())
+	// Middleware for performance and security
+	app.Use(recover.New()) // Recover from panics
+	app.Use(compress.New()) // Compress responses
+	app.Use(logger.New()) // Log requests
 
 	// Serve frontend static files
 	// In Docker, frontend build is copied to /root/frontend/build
@@ -138,29 +105,12 @@ func main() {
 	})
 
 	// CORS middleware
-	app.Use(func(c *fiber.Ctx) error {
-		// Get CORS origin from environment
-		corsOrigin := os.Getenv("CORS_ORIGIN")
-		if corsOrigin == "" {
-			// SECURITY: In production, never allow all origins
-			if os.Getenv("NODE_ENV") == "production" || os.Getenv("ENV") == "production" {
-				log.Fatal("❌ FATAL: CORS_ORIGIN environment variable is required in production")
-			}
-			corsOrigin = "*" // Allow all origins in development only
-			log.Printf("⚠️ CORS_ORIGIN not set, allowing all origins (UNSAFE for production!)")
-		}
-		
-		c.Set("Access-Control-Allow-Origin", corsOrigin)
-		c.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		c.Set("Access-Control-Allow-Credentials", "true")
-
-		if c.Method() == "OPTIONS" {
-			return c.SendStatus(200)
-		}
-
-		return c.Next()
-	})
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     os.Getenv("CORS_ORIGIN"),
+		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
+		AllowCredentials: true,
+	}))
 
 	// Health check endpoint for Render/Railway
 	app.Get("/health", func(c *fiber.Ctx) error {
@@ -175,7 +125,6 @@ func main() {
 					"version": "1.0.0",
 					"port": os.Getenv("PORT"),
 					"database": "disconnected",
-					"timestamp": c.Locals("time"),
 				})
 			}
 			return c.JSON(fiber.Map{
@@ -184,7 +133,6 @@ func main() {
 				"version": "1.0.0",
 				"port": os.Getenv("PORT"),
 				"database": "connected",
-				"timestamp": c.Locals("time"),
 			})
 		} else {
 			// No database mode
@@ -195,7 +143,6 @@ func main() {
 				"port": os.Getenv("PORT"),
 				"database": "not_connected",
 				"message": "Add PostgreSQL service to Railway for full functionality",
-				"timestamp": c.Locals("time"),
 			})
 		}
 	})
@@ -208,7 +155,6 @@ func main() {
 
 	// JWT Middleware with blacklist checking
 	secret := os.Getenv("JWT_SECRET")
-	log.Printf("🔍 JWT_SECRET environment variable length: %d", len(secret))
 	if secret == "" {
 		// SECURITY: In production, this should never happen
 		if os.Getenv("NODE_ENV") == "production" || os.Getenv("ENV") == "production" {
@@ -221,7 +167,7 @@ func main() {
 	}
 	// Ensure minimum length for security
 	if len(secret) < 32 {
-		log.Printf("⚠️ JWT_SECRET is too short (%d characters), current value: %s", len(secret), secret)
+		log.Printf("⚠️ JWT_SECRET is too short (%d characters)", len(secret))
 		// For development, we'll pad the secret if it's too short
 		if os.Getenv("NODE_ENV") != "production" && os.Getenv("ENV") != "production" {
 			// Pad with a strong secret to meet minimum length requirement
@@ -258,14 +204,8 @@ func main() {
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "10000" // Default port for local development
+		port = "8080" // Default port for production
 	}
-
-	// ✅ Log startup information
-	log.Printf("✅ Server starting on port %s", port)
-	log.Printf("✅ Environment: PORT=%s", os.Getenv("PORT"))
-	log.Printf("✅ Go version: %s", runtime.Version())
-	log.Printf("✅ CORS_ORIGIN: %s", os.Getenv("CORS_ORIGIN"))
 
 	// ✅ Bind to 0.0.0.0 for Render compatibility (not localhost)
 	addr := "0.0.0.0:" + port

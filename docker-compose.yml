@@ -1,28 +1,29 @@
 version: '3.8'
 
 services:
+  # Frontend service - React application
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "${PORT:-80}:${PORT:-80}"
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_API_URL=/api
     depends_on:
       - web
     restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-      - PORT=${PORT:-80}
-      - REACT_APP_API_URL=https://unwindmind-backend.onrender.com
     # Performance optimizations
     deploy:
-      replicas: 1
+      replicas: 2
       resources:
         limits:
           memory: 256M
         reservations:
           memory: 128M
 
+  # Backend service - Go API
   web:
     build: 
       context: ./mentalhealthwebapp
@@ -35,7 +36,7 @@ services:
       DB_CONNECTION_STRING: postgres://mental_user:mental_pass@db:5432/mental_db?sslmode=disable
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
       PORT: 8080
-      CORS_ORIGIN: https://unwindmind-frontend.onrender.com
+      CORS_ORIGIN: http://localhost
       # Go performance tuning
       GOGC: 20
       GOMAXPROCS: 2
@@ -57,6 +58,7 @@ services:
         reservations:
           memory: 256M
 
+  # Database service - PostgreSQL
   db:
     image: postgres:15-alpine
     ports:

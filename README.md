@@ -37,6 +37,16 @@ The build process creates a `mentalhealthwebapp/frontend/build` directory that c
 
 ## Deployment
 
+### Render Deployment (Recommended)
+
+The application is designed for deployment on Render using separate services:
+
+1. **PostgreSQL Database**: Create a new PostgreSQL service on Render
+2. **Backend Web Service**: Deploy the Go API as a Docker service
+3. **Frontend Static Site**: Deploy the React app as a static site
+
+For detailed instructions, see [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md).
+
 ### Frontend Deployment (Render Static Site)
 
 The frontend is deployed as a separate static site on Render:
@@ -60,6 +70,7 @@ For detailed instructions, see [FRONTEND_DEPLOYMENT_RENDER.md](FRONTEND_DEPLOYME
 6. Add the required environment variables:
    - `JWT_SECRET`
    - `CORS_ORIGIN` (should match your frontend URL)
+   - `DATABASE_URL` (from your PostgreSQL service)
 
 ### Environment Variables
 
