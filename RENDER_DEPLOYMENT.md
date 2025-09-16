@@ -4,10 +4,11 @@ This guide explains how to deploy the UnwindMind application on Render using sep
 
 ## Architecture Overview
 
-The application is deployed as three separate services on Render:
+The application is deployed as two separate services on Render:
 1. **Frontend**: Static site serving the React application
 2. **Backend**: Web service running the Go API
-3. **Database**: PostgreSQL database service
+
+The database is an existing Render PostgreSQL database service that has already been provisioned.
 
 For detailed information about this deployment architecture, see [DEPLOYMENT_ARCHITECTURE_RENDER.md](DEPLOYMENT_ARCHITECTURE_RENDER.md).
 
@@ -15,19 +16,14 @@ For detailed information about this deployment architecture, see [DEPLOYMENT_ARC
 
 1. A Render account (https://render.com)
 2. This repository connected to your Render account
+3. An existing Render PostgreSQL database service
 
 ## Deployment Steps
 
-### 1. Create the PostgreSQL Database
+### 1. Configure the Database Connection
 
-1. Go to your Render dashboard
-2. Click "New" → "PostgreSQL"
-3. Configure the database settings:
-   - **Name**: `unwindmind-db`
-   - **Database**: `mental_db`
-   - **User**: `mental_user`
-4. Click "Create Database"
-5. Note the connection information for use in the backend service configuration
+The database connection is already configured in the [render.yaml](render.yaml) file with the provided connection string:
+- **DATABASE_URL**: `postgresql://postgres_w55i_user:X2Ql4NcLRRmdDcEq31o4K5qhsclQHToh@dpg-d33fa3odl3ps738rcem0-a.oregon-postgres.render.com/postgres_w55i`
 
 ### 2. Deploy the Backend Web Service
 
@@ -44,7 +40,8 @@ For detailed information about this deployment architecture, see [DEPLOYMENT_ARC
 5. Configure Environment Variables:
    - **JWT_SECRET**: A random string at least 32 characters long for JWT token signing
    - **CORS_ORIGIN**: `https://unwindmind-frontend.onrender.com`
-   - **DATABASE_URL**: Use the connection string from your PostgreSQL service
+   - **DATABASE_URL**: `postgresql://postgres_w55i_user:X2Ql4NcLRRmdDcEq31o4K5qhsclQHToh@dpg-d33fa3odl3ps738rcem0-a.oregon-postgres.render.com/postgres_w55i`
+   - **OPENAI_API_KEY**: Your OpenAI API key for chat functionality (set securely through Render dashboard)
    - **PORT**: `8080`
 
 6. Click "Create Web Service" to start the deployment process
@@ -87,6 +84,19 @@ The deployment is configured using:
 Both services include health check endpoints:
 - **Backend**: `/health` endpoint that verifies service and database connectivity
 - **Frontend**: Automatically served by Render static site
+
+## Security Best Practices
+
+### API Key Management
+- **OPENAI_API_KEY** and other secrets should be set through the Render dashboard
+- Never hardcode API keys in configuration files that are committed to version control
+- Render securely stores environment variables and injects them at runtime
+
+### Setting Secrets in Render
+1. After creating your web service, go to the service dashboard
+2. Click on "Environment Variables" section
+3. Add your secrets with the "Sync" option disabled for sensitive values
+4. Render will securely store and inject these values at runtime
 
 ## Custom Domains (Optional)
 

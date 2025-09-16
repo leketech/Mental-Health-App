@@ -30,18 +30,16 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DB_HOST: db
+      DB_HOST: dpg-d33fa3odl3ps738rcem0-a.oregon-postgres.render.com
       DB_PORT: 5432
-      DB_CONNECTION_STRING: postgres://mental_user:mental_pass@db:5432/mental_db?sslmode=disable
+      DB_CONNECTION_STRING: postgresql://postgres_w55i_user:X2Ql4NcLRRmdDcEq31o4K5qhsclQHToh@dpg-d33fa3odl3ps738rcem0-a.oregon-postgres.render.com/postgres_w55i
+      DATABASE_URL: postgresql://postgres_w55i_user:X2Ql4NcLRRmdDcEq31o4K5qhsclQHToh@dpg-d33fa3odl3ps738rcem0-a.oregon-postgres.render.com/postgres_w55i
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
       PORT: 8080
       CORS_ORIGIN: https://unwindmind-frontend.onrender.com
       # Go performance tuning
       GOGC: 20
       GOMAXPROCS: 2
-    depends_on:
-      db:
-        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
@@ -57,44 +55,45 @@ services:
         reservations:
           memory: 256M
 
-  db:
-    image: postgres:15-alpine
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: mental_db
-      POSTGRES_USER: mental_user
-      POSTGRES_PASSWORD: mental_pass
-      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./mentalhealthwebapp/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mental_user -d mental_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    shm_size: 256mb
-    # Performance optimizations
-    command: >
-      postgres
-      -c shared_buffers=256MB
-      -c effective_cache_size=1GB
-      -c maintenance_work_mem=64MB
-      -c checkpoint_completion_target=0.9
-      -c wal_buffers=16MB
-      -c default_statistics_target=100
-      -c random_page_cost=1.1
-      -c effective_io_concurrency=200
-      -c work_mem=32MB
-      -c min_wal_size=100MB
-      -c max_wal_size=2GB
+  # Note: The database service is removed since we're using an external Render PostgreSQL database
+  # db:
+  #   image: postgres:15-alpine
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     POSTGRES_DB: mental_db
+  #     POSTGRES_USER: mental_user
+  #     POSTGRES_PASSWORD: mental_pass
+  #     POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #     - ./mentalhealthwebapp/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U mental_user -d mental_db"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 10s
+  #   shm_size: 256mb
+  #   # Performance optimizations
+  #   command: >
+  #     postgres
+  #     -c shared_buffers=256MB
+  #     -c effective_cache_size=1GB
+  #     -c maintenance_work_mem=64MB
+  #     -c checkpoint_completion_target=0.9
+  #     -c wal_buffers=16MB
+  #     -c default_statistics_target=100
+  #     -c random_page_cost=1.1
+  #     -c effective_io_concurrency=200
+  #     -c work_mem=32MB
+  #     -c min_wal_size=100MB
+  #     -c max_wal_size=2GB
 
-volumes:
-  pgdata:
-    driver: local
+# volumes:
+#   pgdata:
+#     driver: local
 
 networks:
   default:

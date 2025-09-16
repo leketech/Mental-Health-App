@@ -12,10 +12,9 @@ services:
         value: 8080
       - key: CORS_ORIGIN
         value: https://unwindmind-frontend.onrender.com
+      - key: DATABASE_URL
+        value: postgresql://postgres_w55i_user:X2Ql4NcLRRmdDcEq31o4K5qhsclQHToh@dpg-d33fa3odl3ps738rcem0-a.oregon-postgres.render.com/postgres_w55i
+      - key: OPENAI_API_KEY
+        sync: false
     healthCheckPath: /health
     autoDeploy: false
-
-databases:
-  - name: unwindmind-db
-    plan: free
-    databaseName: unwindmind

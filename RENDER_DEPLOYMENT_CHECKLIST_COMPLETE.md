@@ -1,8 +1,8 @@
-# Render Deployment Checklist
+# Complete Render Deployment Checklist
 
 This checklist ensures all steps are completed for successful deployment of the UnwindMind application on Render.
 
-## Pre-deployment Checklist
+## Pre-deployment Verification
 
 - [ ] Verify all code changes are committed and pushed to the repository
 - [ ] Check that [render.yaml](render.yaml) is properly configured with the correct DATABASE_URL
@@ -10,6 +10,24 @@ This checklist ensures all steps are completed for successful deployment of the 
 - [ ] Confirm [frontend/Dockerfile](frontend/Dockerfile) builds correctly
 - [ ] Review [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md) documentation
 - [ ] Review [DEPLOYMENT_ARCHITECTURE_RENDER.md](DEPLOYMENT_ARCHITECTURE_RENDER.md) for understanding of the deployment architecture
+
+## Required Environment Variables
+
+### Backend Web Service
+
+The following environment variables must be set in the Render dashboard for the backend service:
+
+- [ ] `JWT_SECRET` - A random string at least 32 characters long for JWT token signing
+- [ ] `CORS_ORIGIN` - `https://unwindmind-frontend.onrender.com` (or your custom domain)
+- [ ] `DATABASE_URL` - `postgresql://postgres_w55i_user:X2Ql4NcLRRmdDcEq31o4K5qhsclQHToh@dpg-d33fa3odl3ps738rcem0-a.oregon-postgres.render.com/postgres_w55i`
+- [ ] `PORT` - `8080`
+- [ ] `OPENAI_API_KEY` - Your OpenAI API key for chat functionality (set securely through Render dashboard)
+
+### Frontend Static Site
+
+The following environment variables must be set in the Render dashboard for the frontend service:
+
+- [ ] `REACT_APP_API_URL` - The URL of your backend service (e.g., `https://unwindmind-backend.onrender.com`)
 
 ## Deployment Steps
 
@@ -27,11 +45,7 @@ This checklist ensures all steps are completed for successful deployment of the 
 - [ ] Root Directory: `mentalhealthwebapp`
 - [ ] Environment: `Docker`
 - [ ] Dockerfile Path: `Dockerfile.backend`
-- [ ] Environment Variables:
-  - [ ] `JWT_SECRET` (32+ characters)
-  - [ ] `CORS_ORIGIN=https://unwindmind-frontend.onrender.com`
-  - [ ] `PORT=8080`
-  - [ ] `DATABASE_URL=postgresql://postgres_w55i_user:X2Ql4NcLRRmdDcEq31o4K5qhsclQHToh@dpg-d33fa3odl3ps738rcem0-a.oregon-postgres.render.com/postgres_w55i`
+- [ ] Environment Variables (as listed above)
 - [ ] Health Check Path: `/health`
 - [ ] Deploy and verify service starts correctly
 
@@ -43,8 +57,7 @@ This checklist ensures all steps are completed for successful deployment of the 
 - [ ] Root Directory: `frontend`
 - [ ] Build Command: `npm run build`
 - [ ] Publish Directory: `build`
-- [ ] Environment Variables:
-  - [ ] `REACT_APP_API_URL=https://unwindmind-backend.onrender.com`
+- [ ] Environment Variables (as listed above)
 - [ ] Routes Configuration:
   ```yaml
   routes:
@@ -61,9 +74,16 @@ This checklist ensures all steps are completed for successful deployment of the 
 - [ ] Test user registration flow
 - [ ] Test user login flow
 - [ ] Test protected routes (mood tracking, journaling)
-- [ ] Test AI chat functionality
+- [ ] Test AI chat functionality (if OPENAI_API_KEY is set)
 - [ ] Verify health check endpoints for both services
 - [ ] Test database connectivity and data persistence
+
+## Security Best Practices
+
+### API Key Management
+- [ ] Set OPENAI_API_KEY and other secrets through the Render dashboard
+- [ ] Never hardcode API keys in configuration files that are committed to version control
+- [ ] Ensure sensitive environment variables have "Sync" disabled in Render
 
 ## Custom Domain Configuration (Optional)
 
@@ -91,9 +111,10 @@ If deployment fails:
 1. Check build logs for specific error messages
 2. Verify all environment variables are correctly set
 3. Ensure the database connection string is correct
-4. Check that the JWT_SECRET is properly configured
+4. Check that the JWT_SECRET is properly configured (at least 32 characters)
 5. Verify CORS settings match the frontend domain
 6. Confirm the PORT environment variable is set to 8080
+7. Check that the OpenAI API key is valid (if using chat functionality)
 
 ## Rollback Plan
 
@@ -109,6 +130,36 @@ If issues occur after deployment:
 - [ ] User can register and login successfully
 - [ ] All API endpoints respond correctly
 - [ ] Database operations work as expected
-- [ ] AI chat functionality is operational
+- [ ] AI chat functionality is operational (if enabled)
 - [ ] Health checks pass for both services
 - [ ] Performance meets acceptable standards
+
+## Common Issues and Solutions
+
+### Database Connection Issues
+- Verify the DATABASE_URL format is correct
+- Ensure the database is accessible from the backend service
+- Check that credentials are valid
+
+### JWT Secret Issues
+- Ensure JWT_SECRET is at least 32 characters long
+- Generate a new secure secret if needed
+
+### CORS Issues
+- Verify CORS_ORIGIN matches the frontend domain
+- Check that the frontend is making requests to the correct backend URL
+
+### Health Check Failures
+- Check logs for specific error messages
+- Verify all required services are running
+- Ensure proper port configuration
+
+### Build Failures
+- Check that all dependencies are properly declared
+- Verify Dockerfile paths are correct
+- Ensure build commands work locally
+
+### Chat Functionality Issues
+- Verify the OPENAI_API_KEY is correctly set through Render dashboard
+- Check that the key has not expired
+- Ensure the OpenAI API is accessible from the backend service
