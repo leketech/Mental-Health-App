@@ -1,23 +1,4 @@
-# Multi-stage build: Node.js for frontend, Go for backend
-FROM node:18-alpine AS frontend-builder
-
-# Set working directory
-WORKDIR /app
-
-# Copy frontend package files
-COPY ../frontend/package*.json ./frontend/
-
-# Install frontend dependencies
-WORKDIR /app/frontend
-RUN npm ci --legacy-peer-deps
-
-# Copy frontend source code
-COPY ../frontend/ .
-
-# Build the frontend
-RUN npm run build
-
-# Backend builder stage
+# Backend-only Dockerfile (optimized for standalone backend deployment)
 FROM golang:1.24-alpine AS builder
 
 # Set Go toolchain to use the container's Go version
@@ -59,8 +40,8 @@ WORKDIR /root/
 # Copy the binary from builder stage
 COPY --from=builder /app/main .
 
-# Copy the frontend build from frontend-builder stage
-COPY --from=frontend-builder /app/frontend/build ./frontend/build
+# Copy static files (if any)
+COPY ./static ./static
 
 # Expose port (Railway/Render will set PORT environment variable)
 EXPOSE ${PORT:-3001}

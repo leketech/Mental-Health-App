@@ -9,6 +9,8 @@ The application is deployed as three separate services on Render:
 2. **Backend**: Web service running the Go API
 3. **Database**: PostgreSQL database service
 
+For detailed information about this deployment architecture, see [DEPLOYMENT_ARCHITECTURE_RENDER.md](DEPLOYMENT_ARCHITECTURE_RENDER.md).
+
 ## Prerequisites
 
 1. A Render account (https://render.com)

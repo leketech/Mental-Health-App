@@ -1,62 +1,54 @@
-# Mental Health App - UnwindMind
+# UnwindMind - Mental Health & Wellness Application
 
-A comprehensive mental health application with mood tracking, journaling, and AI chat features.
+UnwindMind is a comprehensive mental health and wellness application designed to help users track their mood, maintain a personal journal, and engage with an AI-powered chat assistant for emotional support. Built with a modern tech stack, it offers a seamless experience for users seeking to improve their mental well-being.
 
 ## Features
 
-- Mood tracking and visualization
-- Personal journal with encryption
-- AI-powered mental health chat
-- User profiles and statistics
-- Therapy booking system
-- Billing and subscription management
+- Mood tracking with visual analytics
+- Personal journaling with rich text editing
+- AI-powered chat assistant for emotional support
+- User profile management
+- Secure authentication system
+- Responsive design for all devices
 
 ## Tech Stack
 
-- **Frontend**: React.js with Tailwind CSS
-- **Backend**: Go with Fiber framework
-- **Database**: PostgreSQL
-- **Deployment**: Docker Compose on Render
-- **Authentication**: JWT tokens with refresh token rotation
+### Frontend
+- React.js with hooks
+- React Router for navigation
+- Axios for HTTP requests
+- Tailwind CSS for styling
+- Chart.js for data visualization
 
-## Build Process
+### Backend
+- Go (Golang) with Gorilla Mux router
+- PostgreSQL database
+- JWT for authentication
+- Docker for containerization
 
-The application now includes a comprehensive build process that compiles both the frontend and backend:
+### AI Integration
+- OpenAI GPT API for chat functionality
 
-1. **Frontend Build**: React application is built using `npm run build`
-2. **Backend Build**: Go application is compiled using `go build`
-3. **Combined Build**: Both frontend and backend are built together using `./build.sh`
+## Prerequisites
 
-### Build Scripts
-
-- `npm run build` - Builds only the frontend
-- `npm run build:all` - Runs the complete build process (frontend + backend)
-- `./build.sh` - Shell script that builds both frontend and backend
-
-The build process creates a `mentalhealthwebapp/frontend/build` directory that contains the compiled frontend assets, which are served by the Go backend.
+- Docker and Docker Compose (for containerized deployment)
+- Node.js (v14 or higher) and npm (for frontend development)
+- Go (v1.19 or higher) (for backend development)
+- PostgreSQL (v13 or higher)
 
 ## Deployment
 
-### Render Deployment (Recommended)
+### Render Deployment Architecture
 
-The application is designed for deployment on Render using separate services:
+Render does not natively support multi-container Docker Compose deployments. The application is deployed as separate services:
 
-1. **PostgreSQL Database**: Create a new PostgreSQL service on Render
-2. **Backend Web Service**: Deploy the Go API as a Docker service
-3. **Frontend Static Site**: Deploy the React app as a static site
+1. **Frontend**: Static site serving the React application
+2. **Backend**: Web service running the Go API
+3. **Database**: PostgreSQL database service
 
-For detailed instructions, see [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md).
+For detailed information about this deployment architecture, see [DEPLOYMENT_ARCHITECTURE_RENDER.md](DEPLOYMENT_ARCHITECTURE_RENDER.md).
 
 ### Frontend Deployment (Render Static Site)
-
-The frontend is deployed as a separate static site on Render:
-
-1. Create a new Static Site on Render
-2. Connect your GitHub repository
-3. Set the root directory to `frontend`
-4. Set the build command to `npm run build`
-5. Set the publish directory to `build`
-6. Add the `REACT_APP_API_URL` environment variable
 
 For detailed instructions, see [FRONTEND_DEPLOYMENT_RENDER.md](FRONTEND_DEPLOYMENT_RENDER.md).
 

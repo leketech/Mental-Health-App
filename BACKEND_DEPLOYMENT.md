@@ -1,41 +1,54 @@
-# Backend Deployment Guide - Render Web Service
+# Backend Deployment Guide
 
-This guide explains how to deploy the backend as a web service on Render.
+This guide explains how to deploy the UnwindMind backend service on Render as a standalone web service.
+
+## Overview
+
+The backend is deployed as a standalone web service on Render. For information about the overall deployment architecture on Render, see [DEPLOYMENT_ARCHITECTURE_RENDER.md](DEPLOYMENT_ARCHITECTURE_RENDER.md).
 
 ## Prerequisites
 
 1. A Render account (https://render.com)
 2. This repository connected to your Render account
-3. A PostgreSQL database (can be provisioned through Render)
+3. A PostgreSQL database service (created separately)
 
 ## Deployment Steps
 
-### 1. Create the Web Service
+### 1. Create the PostgreSQL Database
+
+If you haven't already, create a PostgreSQL database service on Render:
+
+1. Go to your Render dashboard
+2. Click "New" → "PostgreSQL"
+3. Configure the database settings
+4. Note the connection information for use in the web service configuration
+
+### 2. Deploy the Web Service
 
 1. Go to your Render dashboard
 2. Click "New" → "Web Service"
 3. Connect your GitHub repository
 4. Configure the following settings:
-   - **Name**: `unwindmind-backend` (or your preferred name)
+   - **Name**: `unwindmind-backend`
    - **Branch**: `main` (or your deployment branch)
    - **Root Directory**: `mentalhealthwebapp`
    - **Environment**: `Docker`
    - **Dockerfile Path**: `Dockerfile.backend`
 
-### 2. Configure Environment Variables
+5. Configure Environment Variables:
+   - **JWT_SECRET**: A random string at least 32 characters long for JWT token signing
+   - **CORS_ORIGIN**: `https://unwindmind-frontend.onrender.com`
+   - **DATABASE_URL**: Use the connection string from your PostgreSQL service
+   - **PORT**: `8080`
 
-Add the following environment variables:
-- **JWT_SECRET**: A random string at least 32 characters long for JWT token signing
-- **CORS_ORIGIN**: The URL of your frontend (e.g., `https://unwindmind-frontend.onrender.com`)
-- **DATABASE_URL**: Connection string for your PostgreSQL database
-- **PORT**: `8080` (or your preferred port)
+6. Click "Create Web Service" to start the deployment process
 
-### 3. Provision Database (If Needed)
+### 3. Configure Health Checks
 
-If you don't have a PostgreSQL database yet:
-1. Click "New" → "PostgreSQL"
-2. Configure the database settings
-3. Note the connection information for use in the web service configuration
+The service includes a health check endpoint at `/health` which:
+1. Verifies the service is running
+2. Checks database connectivity (if configured)
+3. Returns appropriate status information
 
 ### 4. Deploy
 

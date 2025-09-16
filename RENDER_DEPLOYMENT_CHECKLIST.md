@@ -10,6 +10,7 @@ This checklist ensures all steps are completed for successful deployment of the 
 - [ ] Confirm [frontend/Dockerfile](frontend/Dockerfile) builds correctly
 - [ ] Test the application locally using docker-compose
 - [ ] Review [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md) documentation
+- [ ] Review [DEPLOYMENT_ARCHITECTURE_RENDER.md](DEPLOYMENT_ARCHITECTURE_RENDER.md) for understanding of the deployment architecture
 
 ## Deployment Steps
 

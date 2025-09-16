@@ -1,4 +1,4 @@
-# Backend builder stage
+# Backend-only Dockerfile for Render deployment
 FROM golang:1.24-alpine AS builder
 
 # Set Go toolchain to use the container's Go version
@@ -40,15 +40,12 @@ WORKDIR /root/
 # Copy the binary from builder stage
 COPY --from=builder /app/main .
 
-# Create directory for frontend files
-RUN mkdir -p ./frontend/build
-
-# Expose port (Railway/Render will set PORT environment variable)
-EXPOSE ${PORT:-3001}
+# Expose port (Render will set PORT environment variable)
+EXPOSE ${PORT:-8080}
 
 # Add health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-3001}/health || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-8080}/health || exit 1
 
 # Run the application
 CMD ["./main"]
