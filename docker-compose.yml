@@ -1,22 +1,21 @@
-version: '3.8'
-
 services:
   # Frontend service - React application
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        REACT_APP_API_URL: /api
     ports:
-      - "80:80"
+      - "3000:80"
     environment:
       - NODE_ENV=production
-      - REACT_APP_API_URL=/api
     depends_on:
       - web
     restart: unless-stopped
     # Performance optimizations
     deploy:
-      replicas: 2
+      replicas: 1
       resources:
         limits:
           memory: 256M
@@ -36,7 +35,7 @@ services:
       DB_CONNECTION_STRING: postgres://mental_user:mental_pass@db:5432/mental_db?sslmode=disable
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
       PORT: 8080
-      CORS_ORIGIN: http://localhost
+      CORS_ORIGIN: http://localhost:3000
       # Go performance tuning
       GOGC: 20
       GOMAXPROCS: 2

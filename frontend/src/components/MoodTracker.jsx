@@ -25,7 +25,7 @@ export default function MoodTracker() {
 
   const fetchMoods = async () => {
     try {
-      const res = await api.get('/api/moods');
+      const res = await api.get('/moods');
       setMoods(res.data || []);
     } catch (err) {
       console.error('Failed to fetch moods');
@@ -38,7 +38,7 @@ export default function MoodTracker() {
 
     setLoading(true);
     try {
-      await api.post('/api/moods', { mood, note });
+      await api.post('/moods', { mood, note });
       setMood('');
       setNote('');
       setSelectedMoodCard('');

@@ -32,7 +32,7 @@ export default function App() {
     try {
       // Call logout endpoint to blacklist tokens
       if (token) {
-        await api.post('/api/logout',
+        await api.post('/logout',
           { refresh_token: refreshToken, logout_all: false }
         );
       }

@@ -13,8 +13,8 @@ RUN npm ci --legacy-peer-deps --only=production
 COPY . .
 
 # Set build arguments and environment variables
-ARG REACT_APP_API_URL=http://localhost:3001
-ENV REACT_APP_API_URL=http://localhost:3001
+ARG REACT_APP_API_URL=/api
+ENV REACT_APP_API_URL=${REACT_APP_API_URL}
 ENV CI=false
 ENV GENERATE_SOURCEMAP=false
 

@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -23,7 +25,7 @@ func main() {
 	// Log startup information
 	log.Printf("✅ Starting UnwindMind API Server...")
 	log.Printf("✅ Go version: %s", runtime.Version())
-	
+
 	// Detect environment
 	env := os.Getenv("NODE_ENV")
 	if env == "" {
@@ -33,7 +35,7 @@ func main() {
 		env = "development"
 	}
 	log.Printf("🌍 Environment: %s", env)
-	
+
 	// Load .env file ONLY if we're not in a Docker/production environment
 	// This ensures Docker Compose environment variables take precedence
 	if env != "production" && os.Getenv("DOCKER_ENV") != "true" {
@@ -43,7 +45,7 @@ func main() {
 			log.Printf("✅ Loaded .env file")
 		}
 	} else {
-			log.Printf("⏭️ Skipping .env file load in Docker/production environment")
+		log.Printf("⏭️ Skipping .env file load in Docker/production environment")
 	}
 
 	// Connect to DB
@@ -66,9 +68,9 @@ func main() {
 	})
 
 	// Middleware for performance and security
-	app.Use(recover.New()) // Recover from panics
+	app.Use(recover.New())  // Recover from panics
 	app.Use(compress.New()) // Compress responses
-	app.Use(logger.New()) // Log requests
+	app.Use(logger.New())   // Log requests
 
 	// Serve frontend static files
 	// In Docker, frontend build is copied to /root/frontend/build
@@ -77,29 +79,29 @@ func main() {
 	if _, err := os.Stat("/root/frontend/build"); err == nil {
 		frontendPath = "/root/frontend/build"
 	}
-	
+
 	// Create a custom handler for SPA routing
 	app.Use(func(c *fiber.Ctx) error {
 		// For API routes, continue to next handler
 		if strings.HasPrefix(c.Path(), "/api/") {
 			return c.Next()
 		}
-		
+
 		// For health check, continue to next handler
 		if c.Path() == "/health" {
 			return c.Next()
 		}
-		
+
 		// Try to serve the requested file
 		filePath := filepath.Join(frontendPath, c.Path())
-		
+
 		// Check if file exists
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			// If file doesn't exist, serve index.html for SPA routing
 			indexPath := filepath.Join(frontendPath, "index.html")
 			return c.SendFile(indexPath)
 		}
-		
+
 		// Serve the file if it exists
 		return c.SendFile(filePath)
 	})
@@ -116,33 +118,38 @@ func main() {
 	app.Get("/health", func(c *fiber.Ctx) error {
 		// Check database connection if available
 		if config.DB != nil {
-			if err := config.DB.Ping(); err != nil {
+			// Use context with timeout to prevent hanging
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			defer cancel()
+
+			if err := config.DB.PingContext(ctx); err != nil {
+				log.Printf("⚠️ Health check: database ping failed: %v", err)
 				return c.Status(503).JSON(fiber.Map{
-					"status": "unhealthy",
-					"error":  "database connection failed",
-					"details": err.Error(),
-					"service": "UnwindMind API",
-					"version": "1.0.0",
-					"port": os.Getenv("PORT"),
+					"status":   "unhealthy",
+					"error":    "database connection failed",
+					"details":  err.Error(),
+					"service":  "UnwindMind API",
+					"version":  "1.0.0",
+					"port":     os.Getenv("PORT"),
 					"database": "disconnected",
 				})
 			}
 			return c.JSON(fiber.Map{
-				"status": "healthy",
-				"service": "UnwindMind API",
-				"version": "1.0.0",
-				"port": os.Getenv("PORT"),
+				"status":   "healthy",
+				"service":  "UnwindMind API",
+				"version":  "1.0.0",
+				"port":     os.Getenv("PORT"),
 				"database": "connected",
 			})
 		} else {
 			// No database mode
 			return c.JSON(fiber.Map{
-				"status": "partial",
-				"service": "UnwindMind API",
-				"version": "1.0.0",
-				"port": os.Getenv("PORT"),
+				"status":   "partial",
+				"service":  "UnwindMind API",
+				"version":  "1.0.0",
+				"port":     os.Getenv("PORT"),
 				"database": "not_connected",
-				"message": "Add PostgreSQL service to Railway for full functionality",
+				"message":  "Add PostgreSQL service to Railway for full functionality",
 			})
 		}
 	})

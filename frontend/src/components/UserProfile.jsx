@@ -17,7 +17,7 @@ export default function UserProfile() {
 
   const fetchProfile = async () => {
     try {
-      const res = await api.get('/api/user/profile');
+      const res = await api.get('/user/profile');
       setProfile(res.data);
       setEditForm({
         name: res.data.name || '',
@@ -31,7 +31,7 @@ export default function UserProfile() {
 
   const fetchStats = async () => {
     try {
-      const res = await api.get('/api/user/stats');
+      const res = await api.get('/user/stats');
       setStats(res.data);
     } catch (err) {
       console.error('Failed to fetch stats:', err);
@@ -69,7 +69,7 @@ export default function UserProfile() {
   const handleSaveProfile = async () => {
     setSaveLoading(true);
     try {
-      const response = await api.put('/api/user/profile', editForm);
+      const response = await api.put('/user/profile', editForm);
       setProfile(response.data);
       setIsEditing(false);
       setError('');

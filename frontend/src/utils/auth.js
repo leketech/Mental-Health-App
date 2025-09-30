@@ -39,7 +39,7 @@ api.interceptors.response.use(
 
         // When served from the same origin, use relative paths
         const baseUrl = process.env.REACT_APP_API_URL || '';
-        const response = await axios.post(`${baseUrl}/api/refresh`, {
+        const response = await axios.post(`${baseUrl}/refresh`, {
           refresh_token: refreshToken
         });
 

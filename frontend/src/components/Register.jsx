@@ -108,7 +108,7 @@ export default function Register({ onRegister }) {
         password: formData.password
       };
 
-      await api.post('/api/register', userData);
+      await api.post('/register', userData);
       
       // Use window.location for full page refresh to ensure proper routing
       window.location.href = '/login';

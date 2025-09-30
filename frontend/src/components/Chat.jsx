@@ -41,7 +41,7 @@ export default function Chat() {
     setLoading(true);
 
     try {
-      const res = await api.post('/api/chat', { message: userMessage.content });
+      const res = await api.post('/chat', { message: userMessage.content });
       const aiMessage = {
         id: Date.now() + 1,
         type: 'ai',

@@ -9,7 +9,7 @@ const Settings = ({ user, onLogout }) => {
 
   const handleExportData = async () => {
     try {
-      const response = await api.get('/api/user/export');
+      const response = await api.get('/user/export');
       const blob = new Blob([JSON.stringify(response.data)], { type: 'application/json' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');

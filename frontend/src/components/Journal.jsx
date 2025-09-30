@@ -13,7 +13,7 @@ export default function Journal() {
 
   const fetchJournals = async () => {
     try {
-      const res = await api.get('/api/journals');
+      const res = await api.get('/journals');
       setJournals(res.data || []);
     } catch (err) {
       console.error('Failed to fetch journals:', err);
@@ -27,9 +27,9 @@ export default function Journal() {
     setLoading(true);
     try {
       if (editingJournal) {
-        await api.put(`/api/journals/${editingJournal.id}`, formData);
+        await api.put(`/journals/${editingJournal.id}`, formData);
       } else {
-        await api.post('/api/journals', formData);
+        await api.post('/journals', formData);
       }
       
       setFormData({ title: '', body: '' });
