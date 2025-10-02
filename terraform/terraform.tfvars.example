@@ -1,0 +1,42 @@
+# AWS Region
+region = "us-east-1"
+
+# SSL Certificate ARN (required for HTTPS)
+# For HTTP-only deployment, leave this empty:
+certificate_arn = ""
+# For HTTPS deployment, replace with your actual certificate ARN:
+# certificate_arn = "arn:aws:acm:us-east-1:YOUR_AWS_ACCOUNT_ID:certificate/YOUR_CERTIFICATE_ID"
+
+# Database credentials
+db_username = "mental_user"
+db_password = "your_secure_password_here"
+db_name     = "mental_db"
+
+# JWT Secret for authentication
+jwt_secret = "your_super_secret_jwt_key_here_change_in_production"
+
+# CORS Origin
+cors_origin = "https://yourdomain.com"
+
+# Environment
+environment = "production"
+
+# Custom Domain Configuration
+# Set domain_name to your custom domain and create_route53_records to true
+# to create Route 53 records
+# domain_name = "unwindmind.com"
+# create_route53_records = true
+
+# EC2 Deployment
+# Set deploy_to_ec2 to true to deploy to EC2 instances instead of ECS
+# deploy_to_ec2 = false
+# ec2_key_name = "your-key-pair-name"
+
+# Elastic Beanstalk Deployment
+# Set deploy_to_elastic_beanstalk to true to deploy to Elastic Beanstalk
+# deploy_to_elastic_beanstalk = false
+
+# Let's Encrypt Configuration
+# Set use_lets_encrypt to true to use Let's Encrypt for SSL certificates
+# use_lets_encrypt = false
+# lets_encrypt_email = "your-email@example.com"

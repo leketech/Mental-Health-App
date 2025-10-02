@@ -40,9 +40,6 @@ WORKDIR /root/
 # Copy the binary from builder stage
 COPY --from=builder /app/main .
 
-# Copy static files (if any)
-COPY ./static ./static
-
 # Expose port (Railway/Render will set PORT environment variable)
 EXPOSE ${PORT:-3001}
 

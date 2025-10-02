@@ -44,40 +44,61 @@ func ConnectDB() error {
 			maskedConnStr = maskConnectionString(connStr)
 			log.Printf("🔗 Updated connection string: %s", maskedConnStr)
 		}
+		
+		// Ensure SSL mode is set to require for AWS RDS
+		if !strings.Contains(connStr, "sslmode=") {
+			connStr += " sslmode=require"
+			log.Printf("🔧 Added sslmode=require for RDS connection")
+		}
 	} else {
 		log.Printf("⚠️ No DATABASE_URL or DB_CONNECTION_STRING found, trying to construct from individual variables...")
 
-		// If we still don't have a connection string, try to construct one from Railway variables
-		// Try to construct from individual Railway variables
-		host := os.Getenv("RAILWAY_POSTGRES_HOST")
+		// If we still don't have a connection string, try to construct one from our environment variables
+		// Try to construct from individual environment variables
+		host := os.Getenv("DB_HOST")
+		if host == "" {
+			host = os.Getenv("RAILWAY_POSTGRES_HOST")
+		}
 		if host == "" {
 			host = os.Getenv("PGHOST")
 		}
 		if host == "" {
 			host = "db" // Default to db service for Docker Compose
 		}
-		port := os.Getenv("RAILWAY_POSTGRES_PORT")
+		port := os.Getenv("DB_PORT")
+		if port == "" {
+			port = os.Getenv("RAILWAY_POSTGRES_PORT")
+		}
 		if port == "" {
 			port = os.Getenv("PGPORT")
 		}
 		if port == "" {
 			port = "5432"
 		}
-		user := os.Getenv("RAILWAY_POSTGRES_USER")
+		user := os.Getenv("DB_USER")
+		if user == "" {
+			user = os.Getenv("RAILWAY_POSTGRES_USER")
+		}
 		if user == "" {
 			user = os.Getenv("PGUSER")
 		}
 		if user == "" {
 			user = "mental_user"
 		}
-		password := os.Getenv("RAILWAY_POSTGRES_PASSWORD")
+		password := os.Getenv("DB_PASSWORD")
+		if password == "" {
+			password = os.Getenv("RAILWAY_POSTGRES_PASSWORD")
+		}
 		if password == "" {
 			password = os.Getenv("PGPASSWORD")
 		}
 		if password == "" {
 			password = "mental_pass"
 		}
-		database := os.Getenv("RAILWAY_POSTGRES_DATABASE")
+		database := os.Getenv("DB_NAME")
+		if database == "" {
+			database = os.Getenv("RAILWAY_POSTGRES_DATABASE")
+		}
 		if database == "" {
 			database = os.Getenv("PGDATABASE")
 		}
@@ -88,7 +109,7 @@ func ConnectDB() error {
 		log.Printf("🔧 Individual variables - Host: %s, Port: %s, User: %s, Database: %s", host, port, user, database)
 
 		// Construct the connection string
-		connStr = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		connStr = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=require",
 			host, port, user, password, database)
 		log.Printf("🔧 Constructed connection string from individual variables")
 	}
