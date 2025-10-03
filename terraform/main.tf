@@ -221,8 +221,9 @@ resource "aws_lb_target_group" "backend" {
   }
 }
 
-# HTTP listener for ALB
+# HTTP listener for ALB (only created if no domain name is specified)
 resource "aws_lb_listener" "http" {
+  count             = var.domain_name == "" ? 1 : 0
   load_balancer_arn = aws_lb.main.arn
   port              = "80"
   protocol          = "HTTP"
@@ -233,9 +234,10 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# HTTP listener rule for backend API
+# HTTP listener rule for backend API (only created if no domain name is specified)
 resource "aws_lb_listener_rule" "http_backend" {
-  listener_arn = aws_lb_listener.http.arn
+  count        = var.domain_name == "" ? 1 : 0
+  listener_arn = aws_lb_listener.http[0].arn
   priority     = 200
 
   action {
@@ -250,9 +252,9 @@ resource "aws_lb_listener_rule" "http_backend" {
   }
 }
 
-# HTTPS listener for ALB (created only if certificate_arn is provided and valid)
+# HTTPS listener for ALB (created only if certificate_arn is provided and valid, and no domain name is specified)
 resource "aws_lb_listener" "https" {
-  count             = var.certificate_arn != "" ? 1 : 0
+  count             = var.certificate_arn != "" && var.domain_name == "" ? 1 : 0
   load_balancer_arn = aws_lb.main.arn
   port              = "443"
   protocol          = "HTTPS"
@@ -265,9 +267,9 @@ resource "aws_lb_listener" "https" {
   }
 }
 
-# Listener rule for frontend (created only if HTTPS listener exists)
+# Listener rule for frontend (created only if HTTPS listener exists and no domain name is specified)
 resource "aws_lb_listener_rule" "frontend" {
-  count        = var.certificate_arn != "" ? 1 : 0
+  count        = var.certificate_arn != "" && var.domain_name == "" ? 1 : 0
   listener_arn = aws_lb_listener.https[0].arn
   priority     = 100
 
@@ -283,9 +285,9 @@ resource "aws_lb_listener_rule" "frontend" {
   }
 }
 
-# Listener rule for backend API (created only if HTTPS listener exists)
+# Listener rule for backend API (created only if HTTPS listener exists and no domain name is specified)
 resource "aws_lb_listener_rule" "backend" {
-  count        = var.certificate_arn != "" ? 1 : 0
+  count        = var.certificate_arn != "" && var.domain_name == "" ? 1 : 0
   listener_arn = aws_lb_listener.https[0].arn
   priority     = 200
 
@@ -342,15 +344,17 @@ resource "aws_cloudwatch_log_group" "ecs" {
   }
 }
 
-# Data source to get available AZs
-data "aws_availability_zones" "available" {
-  state = "available"
-}
-
 # Validation to ensure proper SSL configuration
 locals {
   # If domain_name is set, either certificate_arn or use_lets_encrypt must be true
   validate_ssl_config = var.domain_name != "" ? (var.certificate_arn != "" || var.use_lets_encrypt) : true
   # If certificate_arn is provided, it should look like a valid ARN
   validate_certificate_arn = var.certificate_arn != "" ? length(regexall("^arn:aws:acm:", var.certificate_arn)) > 0 : true
+  # If domain_name is provided, it should be a valid domain format
+  validate_domain_name = var.domain_name != "" ? length(regexall("^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\\.[a-zA-Z]{2,}$", var.domain_name)) > 0 : true
+}
+
+# Data source to get available AZs
+data "aws_availability_zones" "available" {
+  state = "available"
 }

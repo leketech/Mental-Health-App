@@ -2,6 +2,7 @@ frontend/.env
 .env
 frontend/.env
 .env
+
 # Node.js / npm
 node_modules/
 frontend/node_modules/
@@ -30,3 +31,37 @@ Thumbs.db
 
 # CLI binary
 cli/mental-health-cli
+
+# Database files
+*.db
+
+# Terraform files
+.terraform/
+*.tfstate
+*.tfstate.backup
+terraform/terraform.tfvars
+terraform/.terraform/
+
+# Troubleshooting and fix documentation files
+*_FIX.md
+*_TROUBLESHOOTING.md
+*_DEBUGGING*.md
+
+# Test scripts
+test-*.sh
+
+# Docker related files
+*Dockerfile.*
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# Large binary files
+*.exe
+*.bin
+*.out
+
+# Terraform provider binaries (large files that exceed GitHub limits)
+terraform/.terraform/providers/

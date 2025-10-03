@@ -58,6 +58,10 @@ variable "domain_name" {
   description = "Custom domain name for the application"
   type        = string
   default     = ""
+  validation {
+    condition     = var.domain_name == "" || can(regex("^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\\.[a-zA-Z]{2,}$", var.domain_name))
+    error_message = "Domain name must be empty or a valid domain format (e.g., example.com)."
+  }
 }
 
 variable "create_route53_records" {
